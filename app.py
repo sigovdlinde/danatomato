@@ -28,7 +28,7 @@ by_r = [{'label': s, 'value': s} for s in structure_r[2:]]
 
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-server = app.server
+# server = app.server
 
 app.title = "Dojo"
 
@@ -71,10 +71,12 @@ app.layout = dbc.Container(
 			                		[
 			                			"Select Group",
 			                			dcc.Dropdown(id="filter_bar1", options=group_names, value="Referees"),
+			                			"Select person(s)",
+			                			dcc.Dropdown(id="filter_bar2", options=all_r_names, value=["Herb Dean"], multi=True),
 			                			"Subject",
-			                			dcc.Dropdown(id="filter_bar2", options=by_r, value="Method"),
+			                			dcc.Dropdown(id="filter_bar3", options=by_r, value="Method"),
 			                			"Percentage",
-			                			dcc.Dropdown(id="filter_bar3", options=[{'label': s, 'value': s} for s in ["Yes", "No"]], value="No"),
+			                			dcc.Dropdown(id="filter_bar4", options=[{'label': s, 'value': s} for s in ["Yes", "No"]], value="No"),
 			                		], md=3),
 			                	
 			                ],
@@ -106,10 +108,11 @@ def update_line_chart(group, names, value):
     Output("graph_bar", "figure"), 
     [Input("filter_bar1", "value"),
 	Input("filter_bar2", "value"),
-	Input("filter_bar3", "value")])
-def update_bar_chart(group, by_value, percentage):
+	Input("filter_bar3", "value"),
+	Input("filter_bar4", "value")])
+def update_bar_chart(group, names, by_value, percentage):
 
-	b_data = bar_data(all_fight_data, group)
+	b_data = bar_data(all_fight_data, group, names)
 	data = []
 	for row in b_data:
 		numbers = [row[1], row[2], row[3]]
@@ -133,7 +136,7 @@ def update_datatable(group, by_value):
 
 	if group == "Referees":
 
-		b_data = bar_data(all_fight_data, 'Referees')
+		b_data = bar_data(all_fight_data, 'Referees', [])
 		df = pd.DataFrame(b_data)
 
 		index = structure_t.index(by_value) + 1

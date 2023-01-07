@@ -75,11 +75,16 @@ def fighter_data(data, name, value):
     
     return all_data
 
-def bar_data(data, group):
+def bar_data(data, group, names):
     # [name, ko, submission, decision, finish]
     if group == 'Fighters':
-        all_f_names = all_referee_names(data)
+        if names == []:
+            all_f_names = all_fighter_names(data)
+        else:
+            all_f_names = names
+
         all_data = [[all_f_names[i], 0, 0, 0, 0] for i in range(len(all_f_names))]
+        print(all_f_names)
 
         for event in data:
             for fight in event[0]:
@@ -96,24 +101,29 @@ def bar_data(data, group):
                     else:
                         all_data[name_index][3] += 1
                         all_data[name_index][4] -= 1
-                        
+
     else:
-        all_r_names = all_referee_names(data)
+        if names == []:
+            all_r_names = all_referee_names(data)
+        else:
+            all_r_names = names
+            
         all_data = [[all_r_names[i], 0, 0, 0, 0] for i in range(len(all_r_names))]
         
         for event in data:
             for fight in event[0]:
-                name_index = all_r_names.index(fight[2][4])
+                if fight[2][4] in all_r_names:
+                    name_index = all_r_names.index(fight[2][4])
                     
-                if fight[2][1] == 'KO/TKO':
-                    all_data[name_index][1] += 1
-                    all_data[name_index][4] += 1
-                elif fight[2][1] == 'Submission':
-                    all_data[name_index][2] += 1
-                    all_data[name_index][4] += 1
-                else:
-                    all_data[name_index][3] += 1
-                    all_data[name_index][4] -= 1
+                    if fight[2][1] == 'KO/TKO':
+                        all_data[name_index][1] += 1
+                        all_data[name_index][4] += 1
+                    elif fight[2][1] == 'Submission':
+                        all_data[name_index][2] += 1
+                        all_data[name_index][4] += 1
+                    else:
+                        all_data[name_index][3] += 1
+                        all_data[name_index][4] -= 1
                     
 
     return all_data
