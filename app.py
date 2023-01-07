@@ -108,13 +108,14 @@ def update_line_chart(group, names, value):
 	Input("filter_bar2", "value"),
 	Input("filter_bar3", "value")])
 def update_bar_chart(group, by_value, percentage):
-	b_data = bar_data(all_fight_data, 'Referees')
+
+	b_data = bar_data(all_fight_data, group)
 	data = []
 	for row in b_data:
 		numbers = [row[1], row[2], row[3]]
 		total = sum(numbers)
 
-		if total > 100:
+		if group == 'Fighters' or total > 100:
 			if percentage == "Yes":
 				numbers = [int(x/total*100) for x in numbers]
 
