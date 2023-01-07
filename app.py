@@ -11,10 +11,12 @@ import plotly.express as px
 
 all_fight_data = open_data('all_fight_data')
 
-all_f_names = all_fighter_names(all_fight_data)
-all_f_names = [{'label': s, 'value': s} for s in all_f_names]
+all_f_n = all_fighter_names(all_fight_data)
+all_f_names = [{'label': s, 'value': s} for s in all_f_n]
+
 all_r_names = all_referee_names(all_fight_data)
 all_r_names = [{'label': s, 'value': s} for s in all_r_names]
+
 group_names = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
 
 structure = ["Fighter", "Date", "KO/TKO", "Submission", "Decision", "Winlose score", "Finish score"]
@@ -40,7 +42,7 @@ app.layout = dbc.Container(
                 		dbc.Row(
 		                	[
 			                	"Select Group",
-			                	dcc.Dropdown(id="filter_table1", options=group_names, value="Fighters"),
+			                	dcc.Dropdown(id="filter_table1", options=group_names, value="Referees"),
 			                	"By",
 			                	dcc.Dropdown(id="filter_table2", options=by_t, value="Finish score"),
 			                	dash_table.DataTable(id="datatable1"),
@@ -138,8 +140,7 @@ def update_datatable(group, by_value):
 
 	else:
 		data = []
-		all_f_names = all_fighter_names(all_fight_data)
-		for name in all_f_names:
+		for name in all_f_n:
 			data.append(fighter_data(all_fight_data, name, structure.index(by_value)))
 
 		table_data = []
