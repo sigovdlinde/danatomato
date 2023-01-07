@@ -9,9 +9,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
-
 all_fight_data = open_data('all_fight_data')
-df_test = pd.read_csv("test.csv")
 
 all_f_names = all_fighter_names(all_fight_data)
 all_f_names = [{'label': s, 'value': s} for s in all_f_names]
