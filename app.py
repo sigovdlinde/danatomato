@@ -28,7 +28,7 @@ by_r = [{'label': s, 'value': s} for s in structure_r[2:]]
 
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-# server = app.server
+server = app.server
 
 app.title = "Dojo"
 
