@@ -11,44 +11,30 @@ import plotly.express as px
 
 all_fight_data = open_data('all_fight_data')
 
-all_f_n = all_fighter_names(all_fight_data)
-all_f_n_options = ['All'] + all_f_n
-all_f_names = [{'label': s, 'value': s} for s in all_f_n_options]
+all_f_names = all_fighter_names(all_fight_data)
+all_r_names = all_referee_names(all_fight_data)
 
-all_r_n = all_referee_names(all_fight_data)
-all_r_n_options = ['All'] + all_r_n
-all_r_names = [{'label': s, 'value': s} for s in all_r_n_options]
+weight = ["Heavyweight", "Light Heavyweight", "Middleweight", "Welterweight", "Lightweight", "Featherweight", "Bantamweight", 
+		  "Flyweight", "Women's Bantamweight", "Women's Strawweight", "Women's Flyweight", "Women's Featherweight", "Open Weight", "Super Heavyweight", "Catch Weight"]
 
-group_names = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
-chart_names = [{'label': s, 'value': s} for s in ["Line", "Bar"]]
+weight_options = [{'label': s, 'value': s} for s in ['All'] + weight]
+all_f_names_options = [{'label': s, 'value': s} for s in ['All'] + all_f_names]
+all_r_names_options = [{'label': s, 'value': s} for s in ['All'] + all_r_names]
 
-weight = ["Heavyweight", "Light Heavyweight", "Middleweight",
-          "Welterweight", "Lightweight", "Featherweight", "Bantamweight", 
-          "Flyweight", "Women's Bantamweight", "Women's Strawweight", 
-          "Women's Flyweight", "Women's Featherweight", "Open Weight", 
-         "Super Heavyweight", "Catch Weight"]
-weight_names = [{'label': s, 'value': s} for s in ['All'] + weight]
-
-yesno = [{'label': s, 'value': s} for s in ["Yes", "No"]]
+group_options = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
+chart_options = [{'label': s, 'value': s} for s in ["Line", "Bar"]]
+yesno_options = [{'label': s, 'value': s} for s in ["Yes", "No"]]
 
 structure_f = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Winlose score", "Finish score"]
-structure_r_new = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score"]
+structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score"]
 
 structure_t = ["KO/TKO", "Submission", "Decision", "Finish score"]
-structure_r = ["Ref", "Date", "Method"]
 
 by_f = [{'label': s, 'value': s} for s in structure_f[2:]]
-by_t = [{'label': s, 'value': s} for s in structure_t]
 by_r = [{'label': s, 'value': s} for s in structure_r[2:]]
 
-all_f_data = []
-for name in all_f_n:
-	all_f_data.append(fighter_data(all_fight_data, name))
-
-all_r_data = []
-for name in all_r_n:
-	all_r_data.append(referee_data(all_fight_data, name))
-
+all_f_data = [fighter_data(all_fight_data, name) for name in all_f_names]
+all_r_data = [referee_data(all_fight_data, name) for name in all_r_names]
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
@@ -108,12 +94,12 @@ app.layout = dbc.Container(
                             [
                                 html.Div(
                                     [
-                                        dcc.Dropdown(id="filter_graph5", options=chart_names, placeholder='Select Graph', value='Line'),
-                                        dcc.Dropdown(id="filter_graph1", options=group_names, placeholder='Select Group', value='Referees'),
-                                        dcc.Dropdown(id="filter_graph2", placeholder='Select Person(s)', value=['Herb Dean', 'Keith Peterson'], multi=True),
-                                        dcc.Dropdown(id="filter_graph6", options=weight_names, placeholder='Select Weight', multi=True),
-                                        dcc.Dropdown(id="filter_graph3", placeholder='Select Option', value='Finish score'),
-                                        dcc.Dropdown(id="filter_graph4", options=yesno, value='No'),
+                                        dcc.Dropdown(id="filter_graph_chart", options=chart_options, placeholder='Select Graph', value='Line'),
+                                        dcc.Dropdown(id="filter_graph_group", options=group_options, placeholder='Select Group', value='Referees'),
+                                        dcc.Dropdown(id="filter_graph_person", placeholder='Select Person(s)', value=['Herb Dean', 'Keith Peterson'], multi=True),
+                                        dcc.Dropdown(id="filter_graph_weight", options=weight_options, placeholder='Select Weight', multi=True),
+                                        dcc.Dropdown(id="filter_graph_by", placeholder='Select Option', value='KO/TKO'),
+                                        dcc.Dropdown(id="filter_graph_percentage", options=yesno_options, value='No'),
                                     ]
                                 )
                             ],
@@ -152,78 +138,26 @@ app.layout = dbc.Container(
 )
 
 @app.callback(
-    Output("datatable1", "data"),
-    Output("datatable1", "columns"), 
-    [Input("filter_graph1", "value"),
-	Input("filter_graph3", "value")])
-def update_datatable(group, value):
-
-	if group == "Fighters":
-		all_n = all_f_n
-		all_data = all_f_data
-		structure = structure_f
-
-	elif group == "Referees":
-		all_n = all_r_n
-		all_data = all_r_data
-		structure = structure_r_new
-
-	data = []
-	for i, name in enumerate(all_n):
-		data.append([name] + all_data[i][1][-1])
-	
-	df = pd.DataFrame(data)
-	df = df[[0, structure.index(value)]]
-	df = df.sort_values(structure.index(value))
-	df = df[::-1].reset_index(drop=True)
-	df.index += 1
-	df = df.reset_index(level=0)
-	df.columns = ["#", "Name", value]
-	columns =  [{"name": i, "id": i,} for i in (df.columns)]
-
-	return df[:100].to_dict('records'), columns
-
-@app.callback(
-    Output("filter_graph2", "options"),
-    Output("filter_graph3", "options"),
-    Output("filter_graph3", "value"),
-    [Input("filter_graph1", "value"),
-    Input("filter_graph3", "value")])
-def update_filter_graph(value, by_value):
-	if value == "Fighters":
-		names = all_f_names
-		by = by_f
-		if by_value not in structure_f[2:]:
-			by_value = "Finish score"
-	else:
-		names = all_r_names
-		by = by_t
-		if by_value not in structure_r_new[2:]:
-			by_value = "Finish score"
-
-	return names, by, by_value
-
-@app.callback(
     Output("graph_line", "figure"), 
-    [Input("filter_graph1", "value"),
-    Input("filter_graph2", "value"),
-	Input("filter_graph3", "value")])
+    [Input("filter_graph_group", "value"),
+    Input("filter_graph_person", "value"),
+	Input("filter_graph_by", "value")])
 def update_line_chart(group, names, value):
 	if group == "Fighters":
 		if 'All' in names:
-			names = all_f_n
+			names = all_f_names
 
-		all_n = all_f_n
+		all_n = all_f_names
 		all_data = all_f_data
 		structure = structure_f
 
 	elif group == "Referees":
 		if "All" in names:
-			names = all_r_n
+			names = all_r_names
 
-		all_n = all_r_n
+		all_n = all_r_names
 		all_data = all_r_data
-		structure = structure_r_new
+		structure = structure_r
 
 	data = []
 	for name in names:
@@ -241,6 +175,58 @@ def update_line_chart(group, names, value):
 	fig = px.line(df, x="Date", y=value, color="Name")
 	fig.update_layout(showlegend=False, paper_bgcolor='#F7F7F7')
 	return fig
+
+@app.callback(
+    Output("datatable1", "data"),
+    Output("datatable1", "columns"), 
+    [Input("filter_graph_group", "value"),
+	Input("filter_graph_by", "value")])
+def update_datatable(group, value):
+
+	if group == "Fighters":
+		all_n = all_f_names
+		all_data = all_f_data
+		structure = structure_f
+
+	elif group == "Referees":
+		all_n = all_r_names
+		all_data = all_r_data
+		structure = structure_r
+
+	data = []
+	for i, name in enumerate(all_n):
+		data.append([name] + all_data[i][1][-1])
+	
+	df = pd.DataFrame(data)
+	df = df[[0, structure.index(value)]]
+	df = df.sort_values(structure.index(value))
+	df = df[::-1].reset_index(drop=True)
+	df.index += 1
+	df = df.reset_index(level=0)
+	df.columns = ["#", "Name", value]
+	columns =  [{"name": i, "id": i,} for i in (df.columns)]
+
+	return df[:100].to_dict('records'), columns
+
+@app.callback(
+    Output("filter_graph_person", "options"),
+    Output("filter_graph_by", "options"),
+    Output("filter_graph_by", "value"),
+    [Input("filter_graph_group", "value"),
+    Input("filter_graph_by", "value")])
+def update_filter_graph(value, by_value):
+	if value == "Fighters":
+		names = all_f_names_options
+		by = by_f
+		if by_value not in structure_f[2:]:
+			by_value = "Finish score"
+	else:
+		names = all_r_names_options
+		by = by_r
+		if by_value not in structure_r[2:]:
+			by_value = "Finish score"
+
+	return names, by, by_value
 
 
 if __name__ == "__main__":
