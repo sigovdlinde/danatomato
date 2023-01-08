@@ -73,7 +73,7 @@ app.layout = dbc.Container(
 			                			"Select person(s)",
 			                			dcc.Dropdown(id="filter_line2", multi=True),
 			                			"By",
-			                			dcc.Dropdown(id="filter_line3", options=by_f, value="Finish score"),
+			                			dcc.Dropdown(id="filter_line3", value="Finish score"),
 			                		], md=3),
 			                ],
 		                ),
@@ -107,18 +107,24 @@ app.layout = dbc.Container(
     Output("filter_line2", "options"),
     Output("filter_line2", "value"),
     Output("filter_line3", "options"),
-    Input("filter_line1", "value"))
-def update_filter_line2_chart(value):
+    Output("filter_line3", "value"),
+    [Input("filter_line1", "value"),
+    Input("filter_line3", "value")])
+def update_filter_line2_chart(value, by_value):
 	if value == "Fighters":
-		options1 = all_f_names
-		value = ["Sam Alvey ", "Francisco Trinaldo ", "Jon Jones "]
-		options2 = by_f
+		names = all_f_names
+		name_value = ["Sam Alvey ", "Francisco Trinaldo ", "Jon Jones "]
+		by = by_f
+		if by_value not in structure_f[2:]:
+			by_value = "Finish score"
 	else:
-		options1 = all_r_names
-		value = ["Everyone"]
-		options2 = by_t
+		names = all_r_names
+		name_value = ["Everyone"]
+		by = by_t
+		if by_value not in structure_r_new[2:]:
+			by_value = "Finish score"
 
-	return options1, value, options2
+	return names, name_value, by, by_value
 
 @app.callback(
     Output("graph_line", "figure"), 
@@ -171,6 +177,9 @@ def update_line_chart(group, names, value):
 	Input("filter_bar3", "value"),
 	Input("filter_bar4", "value")])
 def update_bar_chart(group, names, by_value, percentage):
+
+	# if group == "Fighters":
+
 
 	b_data = bar_data(all_fight_data, group, names)
 	data = []
