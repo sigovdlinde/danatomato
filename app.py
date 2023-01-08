@@ -29,6 +29,8 @@ weight = ["Heavyweight", "Light Heavyweight", "Middleweight",
          "Super Heavyweight", "Catch Weight"]
 weight_names = [{'label': s, 'value': s} for s in ['All'] + weight]
 
+yesno = [{'label': s, 'value': s} for s in ["Yes", "No"]]
+
 structure_f = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Winlose score", "Finish score"]
 structure_r_new = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score"]
 
@@ -53,60 +55,99 @@ server = app.server
 
 app.title = "Tomato"
 
+#A32116
+
 app.layout = dbc.Container(
     [
-        html.H1(
-        	[	
-        		html.Img(src=r'assets/danatomato.png', style={'height':'6%', 'width':'6%'}, alt='image'),
-        		"Tomato Dashboard",
-        		html.Img(src=r'assets/samciggie.png', style={'height':'5%', 'width':'5%'}, alt='image')
-        	], className="header-title"),
-        html.P("“I bet every single card, just about every fight” -  James “The James Krause” Krause", className="header-description"),
-
-        dbc.Row(
+        # Header
+        dbc.Card(
             [
-                dbc.Col(
-                	[
-        				"Select Chart (doesnt work)",
-	                	dcc.Dropdown(id="filter_graph5", options=chart_names, value="Line"),
-        				"Select Group",
-	                	dcc.Dropdown(id="filter_graph1", options=group_names, value="Fighters"),
-	                	"Select person(s)",
-			            dcc.Dropdown(id="filter_graph2", value=["Sam Alvey ", "Francisco Trinaldo ", "Jon Jones "], multi=True),
-	                	"Select Weight class (doesnt work)",
-	                	dcc.Dropdown(id="filter_graph6", options=weight_names, value="Lightweight", multi=True),
-	                	"By",
-	                	dcc.Dropdown(id="filter_graph3", value="Finish score"),
-	                	"Percentage (doesnt work)",
-			            dcc.Dropdown(id="filter_graph4", options=[{'label': s, 'value': s} for s in ["Yes", "No"]], value="No"),
-                	], md=2, className=["wrapper", "card"]),
-                dbc.Col(
-                	dbc.Row([
-                		dbc.Col(dcc.Graph(id="graph_line", config={"displayModeBar": False}), md=8, className=["wrapper", "card"]),
-						dbc.Col(dash_table.DataTable(id="datatable1", style_table={'overflowY': 'scroll', 'height': '400px'},
-							style_cell_conditional=[
-				    			{	
-						            'if': {'column_id': 'Name'},
-						            'textAlign': 'left',
-						            'padding-left': '30px'
-						        },
-					        ],
-						    style_as_list_view=True,
-						), md=4, className=["wrapper", "card"]), 
-                	]), md=10),
-
+                dbc.CardBody(
+                    [
+		                dbc.Row(
+		                    [
+		                        dbc.Col(
+		                            html.Img(src='assets/danatomato.png', width=180, height=150),
+		                            width=2,
+		                        ),
+		                        dbc.Col(
+		                            [
+						                html.Div(
+						                    [
+						                        html.H1("Tomato Dashboard"),
+						                        html.P("“I bet every single card, just about every fight” -  James “The James Krause” Krause"),
+						                    ],
+						                    className="text-center"
+						                ),
+		                            ],
+		                            width=8,
+		                            className="align-items-center justify-content-center"
+		                        ),
+		                        dbc.Col(
+		                            html.Img(src='assets/samciggie.png', width=150, height=150),
+		                            width=2,
+		                        ),
+		                    ],
+		                    className="align-items-center",
+		                )
+                    ]
+                )
             ],
+            style={
+                "background-color": "#262B30",
+                "color": "white",
+                "padding": "20px",
+            },
         ),
-        dbc.Row(
+        # Body
+        dbc.Container(
             [
-                html.Ul(
-                	[
-                		html.Li("Winlose score: Win - Lose"),
-                		html.Li("Finish score: KO/TKO + Submission - Decision. Wins only. "),
-                	])
-
-            ], className=["wrapper-text", "card"]),
-    ],
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            [
+                                html.Div(
+                                    [
+                                        dcc.Dropdown(id="filter_graph5", options=chart_names, placeholder='Select Graph', value='Line'),
+                                        dcc.Dropdown(id="filter_graph1", options=group_names, placeholder='Select Group', value='Referees'),
+                                        dcc.Dropdown(id="filter_graph2", placeholder='Select Person(s)', value=['Herb Dean', 'Keith Peterson'], multi=True),
+                                        dcc.Dropdown(id="filter_graph6", options=weight_names, placeholder='Select Weight', multi=True),
+                                        dcc.Dropdown(id="filter_graph3", placeholder='Select Option', value='Finish score'),
+                                        dcc.Dropdown(id="filter_graph4", options=yesno, value='No'),
+                                    ]
+                                )
+                            ],
+                            id="column-1",
+                            width=2,
+                        ),
+                        dbc.Col(dcc.Graph(id="graph_line", config={"displayModeBar": False}), width=7),
+						dbc.Col(
+						    dash_table.DataTable(
+						        id="datatable1",
+						        style_table={'overflowY': 'scroll', 'height': '450px'},
+						        style_cell={
+						            'border': '0px solid white',
+						            'backgroundColor': 'transparent'
+						        },
+						        style_cell_conditional=[
+						            {
+						                'if': {'column_id': 'Name'},
+						                'textAlign': 'left',
+						                'padding-left': '30px'
+						            },
+						        ],
+						        style_as_list_view=True,
+						    ),
+						    width=3,
+						)
+                    ]
+                ),
+                dbc.Row(id="row-2"),
+            ],
+            style={"padding": "20px"},
+            fluid=True,
+        ),
+    ], 
     fluid=True,
 )
 
@@ -198,7 +239,7 @@ def update_line_chart(group, names, value):
 		df = pd.DataFrame(data, columns=["Name", "Date", value])
 
 	fig = px.line(df, x="Date", y=value, color="Name")
-	fig.update_layout(showlegend=False)
+	fig.update_layout(showlegend=False, paper_bgcolor='#F7F7F7')
 	return fig
 
 
