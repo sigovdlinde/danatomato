@@ -52,15 +52,13 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(
-                		dbc.Row(
-		                	[
-			                	"Select Group",
-			                	dcc.Dropdown(id="filter_table1", options=group_names, value="Referees"),
-			                	"By",
-			                	dcc.Dropdown(id="filter_table2", options=by_t, value="Finish score"),
-			                	dash_table.DataTable(id="datatable1"),
-			                ],
-                		),  md=3),
+                	[
+        				"Select Group",
+	                	dcc.Dropdown(id="filter_table1", options=group_names, value="Referees"),
+	                	"By",
+	                	dcc.Dropdown(id="filter_table2", options=by_t, value="Finish score"),
+	                	dash_table.DataTable(id="datatable1"),
+                	],  md=3),
                 dbc.Col(
                 	[
 		                dbc.Row(
@@ -102,6 +100,44 @@ app.layout = dbc.Container(
     ],
     fluid=True,
 )
+
+@app.callback(
+    Output("datatable1", "data"),
+    Output("datatable1", "columns"), 
+    [Input("filter_table1", "value"),
+	Input("filter_table2", "value")])
+def update_datatable(group, by_value):
+
+	if group == "Fighters":
+		index = structure_t.index(by_value) + 1
+		df = df[[0,index]].sort_values(index)[::-1].reset_index(drop=True)
+		data = []
+		
+		for name in all_f_n:
+			data.append(fighter_data(all_fight_data, name, structure.index(by_value)))
+
+		table_data = []
+		for i, fighter in enumerate(data):
+			count = fighter[-1][2]
+			table_data.append([fighter[0][0], count])
+			index = 2
+		
+		df = pd.DataFrame(table_data).sort_values(1)
+		df = df[::-1].reset_index(drop=True)
+
+	else:
+		b_data = bar_data(all_fight_data, 'Referees', all_r_n)
+		df = pd.DataFrame(b_data)[[0, 1]]
+		print(df)
+
+	
+	df.index += 1
+	df = df.reset_index(level=0)
+
+	df.columns = ["#", "Name", by_value]
+	columns =  [{"name": i, "id": i,} for i in (df.columns)]
+	
+	return df[:30].to_dict('records'), columns
 
 @app.callback(
     Output("filter_line2", "options"),
@@ -196,42 +232,7 @@ def update_bar_chart(group, names, by_value, percentage):
 	fig = go.Figure(data=data)
 	return fig
 
-@app.callback(
-    Output("datatable1", "data"),
-    Output("datatable1", "columns"), 
-    [Input("filter_table1", "value"),
-	Input("filter_table2", "value")])
-def update_datatable(group, by_value):
 
-	if group == "Referees":
-
-		b_data = bar_data(all_fight_data, 'Referees', [])
-		df = pd.DataFrame(b_data)
-
-		index = structure_t.index(by_value) + 1
-		df = df[[0,index]].sort_values(index)[::-1].reset_index(drop=True)
-
-	else:
-		data = []
-		for name in all_f_n:
-			data.append(fighter_data(all_fight_data, name, structure.index(by_value)))
-
-		table_data = []
-		for i, fighter in enumerate(data):
-			count = fighter[-1][2]
-			table_data.append([fighter[0][0], count])
-			index = 2
-		
-		df = pd.DataFrame(table_data).sort_values(1)
-		df = df[::-1].reset_index(drop=True)
-	
-	df.index += 1
-	df = df.reset_index(level=0)
-
-	df.columns = ["#", "Name", by_value]
-	columns =  [{"name": i, "id": i,} for i in (df.columns)]
-	
-	return df[:30].to_dict('records'), columns
 
 
 if __name__ == "__main__":

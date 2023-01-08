@@ -130,12 +130,10 @@ def bar_data(data, group, names):
                         all_data[name_index][4] -= 1
 
     else:
-        if names == []:
-            all_r_names = all_referee_names(data)
-        else:
-            all_r_names = names
+
+        all_r_names = all_referee_names(data)
             
-        all_data = [[all_r_names[i], 0, 0, 0, 0] for i in range(len(all_r_names))]
+        all_data = [[all_r_names[i], 0, 0, 0, 0] for i in range(len(names))]
         
         for event in data:
             for fight in event[0]:
