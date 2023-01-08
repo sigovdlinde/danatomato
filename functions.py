@@ -37,7 +37,7 @@ def all_referee_names(data):
     
     return all_names 
 
-def fighter_data(data, name, value):
+def fighter_data(data, name):
     all_data = []
     winlose = 0
     # ko not implemented
@@ -70,10 +70,37 @@ def fighter_data(data, name, value):
                     winlose -= 1
             
                 date = convert_date(event[1])
-                data = [name, date, ko, submission, decision, winlose, finish]
-                all_data.append([name, date, data[value]])
+                data = [date, ko, submission, decision, winlose, finish]
+                all_data.append(data)
     
-    return all_data
+    return [name, all_data]
+
+def referee_data(data, name):
+    all_data = []
+    # ko not implemented
+    ko = 0
+    decision = 0
+    submission = 0
+    finish = 0
+    
+    for event in data:
+        for fight in event[0]:
+            if name == fight[2][4]:
+                if fight[2][1] == 'KO/TKO':
+                    ko += 1
+                    finish += 1
+                elif fight[2][1] == 'Submission':
+                    submission += 1
+                    finish += 1
+                else:
+                    decision += 1
+                    finish -= 1
+            
+                date = convert_date(event[1])
+                data = [date, ko, submission, decision, finish]
+                all_data.append(data)
+    
+    return [name, all_data]
 
 def bar_data(data, group, names):
     # [name, ko, submission, decision, finish]

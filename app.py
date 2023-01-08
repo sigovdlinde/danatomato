@@ -12,23 +12,36 @@ import plotly.express as px
 all_fight_data = open_data('all_fight_data')
 
 all_f_n = all_fighter_names(all_fight_data)
-all_f_names = [{'label': s, 'value': s} for s in all_f_n]
+all_f_n_options = ['Everyone'] + all_f_n
+all_f_names = [{'label': s, 'value': s} for s in all_f_n_options]
 
-all_r_names = all_referee_names(all_fight_data)
-all_r_names = [{'label': s, 'value': s} for s in all_r_names]
+all_r_n = all_referee_names(all_fight_data)
+all_r_n_options = ['Everyone'] + all_r_n
+all_r_names = [{'label': s, 'value': s} for s in all_r_n_options]
 
 group_names = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
 
-structure = ["Fighter", "Date", "KO/TKO", "Submission", "Decision", "Winlose score", "Finish score"]
+structure_f = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Winlose score", "Finish score"]
+structure_r_new = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score"]
+
 structure_t = ["KO/TKO", "Submission", "Decision", "Finish score"]
 structure_r = ["Ref", "Date", "Method"]
-by = [{'label': s, 'value': s} for s in structure[2:]]
+
+by_f = [{'label': s, 'value': s} for s in structure_f[2:]]
 by_t = [{'label': s, 'value': s} for s in structure_t]
 by_r = [{'label': s, 'value': s} for s in structure_r[2:]]
 
+all_f_data = []
+for name in all_f_n:
+	all_f_data.append(fighter_data(all_fight_data, name))
+
+all_r_data = []
+for name in all_r_n:
+	all_r_data.append(referee_data(all_fight_data, name))
+
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-server = app.server
+# server = app.server
 
 app.title = "Dojo"
 
@@ -58,9 +71,9 @@ app.layout = dbc.Container(
 			                			"Select Group",
 			                			dcc.Dropdown(id="filter_line1", options=group_names, value="Fighters"),
 			                			"Select person(s)",
-			                			dcc.Dropdown(id="filter_line2", options=all_f_names, value=["Francisco Trinaldo ", "Michael Bisping ", "Jon Jones "], multi=True),
+			                			dcc.Dropdown(id="filter_line2", multi=True),
 			                			"By",
-			                			dcc.Dropdown(id="filter_line3", options=by, value="Finish score"),
+			                			dcc.Dropdown(id="filter_line3", options=by_f, value="Finish score"),
 			                		], md=3),
 			                ],
 		                ),
@@ -91,17 +104,64 @@ app.layout = dbc.Container(
 )
 
 @app.callback(
+    Output("filter_line2", "options"),
+    Output("filter_line2", "value"),
+    Output("filter_line3", "options"),
+    Input("filter_line1", "value"))
+def update_filter_line2_chart(value):
+	if value == "Fighters":
+		options1 = all_f_names
+		value = ["Sam Alvey ", "Francisco Trinaldo ", "Jon Jones "]
+		options2 = by_f
+	else:
+		options1 = all_r_names
+		value = ["Everyone"]
+		options2 = by_t
+
+	return options1, value, options2
+
+@app.callback(
     Output("graph_line", "figure"), 
     [Input("filter_line1", "value"),
     Input("filter_line2", "value"),
 	Input("filter_line3", "value")])
 def update_line_chart(group, names, value):
-	data = []
-	for name in names:
-		data += fighter_data(all_fight_data, name, structure.index(value))
+	if group == 'Fighters':
+		if 'Everyone' in names:
+			names = all_f_n
 
-	df = pd.DataFrame(data, columns=["Fighter", "Date", value])
-	fig = px.line(df, x="Date", y=value, color='Fighter')
+		data = []
+		for name in names:
+			index = all_f_n.index(name)
+			for fight in all_f_data[index][1]:
+				data.append([name] + fight)
+		
+		if data != []:
+			df = pd.DataFrame(data)
+			df = df[[0, 1, structure_f.index(value)]]
+			df.columns = ["Name", "Date", value]
+		else:
+			df = pd.DataFrame(data, columns=["Name", "Date", value])
+
+	else:
+		if 'Everyone' in names:
+			names = all_r_n
+
+		data = []
+		for name in names:
+			index = all_r_n.index(name)
+			for fight in all_r_data[index][1]:
+				data.append([name] + fight)
+		
+		if data != []:
+			df = pd.DataFrame(data)
+			df = df[[0, 1, structure_r_new.index(value)]]
+			df.columns = ["Name", "Date", value]
+		else:
+			df = pd.DataFrame(data, columns=["Name", "Date", value])
+
+
+	fig = px.line(df, x="Date", y=value, color="Name")
 	return fig
 
 @app.callback(
