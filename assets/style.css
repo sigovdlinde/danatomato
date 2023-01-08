@@ -5,7 +5,7 @@ body {
 }
 
 .header {
-/*    background-color: #030303;*/
+    background-color: #262B30;
     height: 256px;
     display: flex;
     flex-direction: column;
@@ -19,7 +19,7 @@ body {
 }
 
 .header-title {
-/*    color: #FFFFFF;*/
+    color: #262B30;
     font-size: 48px;
     font-weight: bold;
     text-align: center;
@@ -42,7 +42,15 @@ body {
     margin-top: 32px;
 }
 
+.wrapper-text {
+    margin-right: auto;
+    margin-left: auto;
+    width:100%;
+    padding-right: 10px;
+    padding-left: 10px;
+    margin-top: auto;
+}
 .card {
-    margin-bottom: 24px;
+    margin-bottom: 10px;
     box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.18);
 }
