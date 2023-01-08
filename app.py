@@ -41,7 +41,7 @@ for name in all_r_n:
 
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-# server = app.server
+server = app.server
 
 app.title = "Dojo"
 
