@@ -20,6 +20,7 @@ all_r_n_options = ['Everyone'] + all_r_n
 all_r_names = [{'label': s, 'value': s} for s in all_r_n_options]
 
 group_names = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
+chart_names = [{'label': s, 'value': s} for s in ["Line", "Bar"]]
 
 structure_f = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Winlose score", "Finish score"]
 structure_r_new = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score"]
@@ -43,17 +44,23 @@ for name in all_r_n:
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
-app.title = "Dojo"
+app.title = "Tomato"
 
 app.layout = dbc.Container(
     [
-        html.H1("Dojo Dashboard", className="header-title"),
-        html.P("Dashboard for mma analytics", className="header-description"),
+        html.H1(
+        	[	html.Img(src=r'assets/danatomato.png', style={'height':'6%', 'width':'6%'}, alt='image'),
+        		"Tomato Dashboard",
+        		html.Img(src=r'assets/samciggie.png', style={'height':'5%', 'width':'5%'}, alt='image')
+        	], className="header-title"),
+        html.P("“I bet every single card, just about every fight” -  James “The James Krause” Krause", className="header-description"),
 
         dbc.Row(
             [
                 dbc.Col(
                 	[
+        				"Select Chart",
+	                	dcc.Dropdown(id="filter_graph5", options=chart_names, value="Line"),
         				"Select Group",
 	                	dcc.Dropdown(id="filter_graph1", options=group_names, value="Fighters"),
 	                	"Select person(s)",
@@ -167,63 +174,6 @@ def update_line_chart(group, names, value):
 
 	fig = px.line(df, x="Date", y=value, color="Name")
 	return fig
-
-# @app.callback(
-#     Output("graph_bar", "figure"), 
-#     [Input("filter_graph1", "value"),
-# 	Input("filter_graph2", "value"),
-# 	Input("filter_graph3", "value"),
-# 	Input("filter_graph4", "value")])
-# def update_bar_chart(group, names, value, percentage):
-
-# 	if group == "Fighters":
-# 		if 'Everyone' in names:
-# 			names = all_f_n
-
-# 		all_n = all_f_n
-# 		all_data = all_f_data
-# 		structure = structure_f
-
-# 	elif group == "Referees":
-# 		if "Everyone" in names:
-# 			names = all_r_n
-
-# 		all_n = all_r_n
-# 		all_data = all_r_data
-# 		structure = structure_r_new
-
-# 	data = []
-# 	for name in names:
-# 		index = all_n.index(name)
-# 		for fight in all_data[index][1]:
-# 			data.append([name] + fight)
-
-# 	if data != []:
-# 		df = pd.DataFrame(data)
-# 		df = df[[0, 1, structure.index(value)]]
-# 		df.columns = ["Name", "Date", value]
-# 	else:
-# 		df = pd.DataFrame(data, columns=["Name", "Date", value])
-	
-# 	fig = px.histogram(df, x="sex", y="total_bill", color='smoker', barmode='group', height=400)
-# 	fig = go.Figure(data=data)
-	
-# 	# b_data = bar_data(all_fight_data, group, names)
-# 	# data = []
-# 	# for row in b_data:
-# 	# 	numbers = [row[1], row[2], row[3]]
-# 	# 	total = sum(numbers)
-
-# 	# 	if group == 'Fighters' or total > 100:
-# 	# 		if percentage == "Yes":
-# 	# 			numbers = [int(x/total*100) for x in numbers]
-
-# 	# 		data.append(go.Bar(name=row[0], x=["KO/TKO", "Submission", "Decision"], y=numbers))
-
-# 	fig = go.Figure(data=data)
-# 	return fig
-
-
 
 
 if __name__ == "__main__":
