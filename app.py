@@ -96,10 +96,10 @@ app.layout = dbc.Container(
                                     [
                                         dcc.Dropdown(id="filter_graph_chart", style=style_button, options=chart_options, placeholder='Select Graph', value='Line'),
                                         dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Fighters'),
-                                        dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['Sam Alvey ', 'Jon Jones '], multi=True),
-                                        dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', multi=True),
-                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option', value='Winlose Score'),
-                                        dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
+                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option', value='Finish Rate'),
+                                        dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['All'], multi=True),
+                                        dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', value=['Lightweight'], multi=True),
+                                        # dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
                                     ]
                                 )
                             ],
