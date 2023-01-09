@@ -116,11 +116,14 @@ app.layout = dbc.Container(
 						            'backgroundColor': 'transparent'
 						        },
 						        style_cell_conditional=[
+								    {
+								        'textAlign': 'center'
+								    },
 						            {
 						                'if': {'column_id': 'Name'},
 						                'textAlign': 'left',
 						                'padding-left': '30px'
-						            }
+						            },
 						        ],
 						        style_as_list_view=True,
 						    )),
