@@ -100,7 +100,6 @@ app.layout = dbc.Container(
                                         dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['All'], multi=True),
                                         dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', value=['Lightweight'], multi=True),
                                         # dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
-                                        html.Div(dcc.RangeSlider(id="filter_graph_slider", min=0, max=20, value=[0, 20]), style={'padding-top': '15px'}),
                                     ]
                                 ),
 				                html.Div(
@@ -173,9 +172,8 @@ app.layout = dbc.Container(
     [Input("filter_graph_group", "value"),
     Input("filter_graph_person", "value"),
 	Input("filter_graph_by", "value"),
-	Input("filter_graph_weight", "value"),
-	Input("filter_graph_slider", "value")])
-def update_line_chart(group, names, value, weight, slider):
+	Input("filter_graph_weight", "value")])
+def update_line_chart(group, names, value, weight):
 	if group == "Fighters":
 		if 'All' in names:
 			names = all_f_names
@@ -244,7 +242,7 @@ def update_datatable(group, value, weight):
     Output("filter_graph_person", "value"),
     [Input("filter_graph_group", "value"),
     Input("filter_graph_person", "value")])
-def update_filter_graph(value, name):
+def update_filter_graph_person(value, name):
 	if value == "Fighters":
 		names = all_f_names_options
 		name_check = all_f_names
@@ -265,7 +263,7 @@ def update_filter_graph(value, name):
     Output("filter_graph_by", "value"),
     [Input("filter_graph_group", "value"),
     Input("filter_graph_by", "value")])
-def update_filter_graph(value, by_value):
+def update_filter_graph_by(value, by_value):
 	if value == "Fighters":
 		structure = structure_f
 		by = by_f
@@ -277,7 +275,6 @@ def update_filter_graph(value, by_value):
 		by_value = "Finish Score"
 
 	return by, by_value
-
 
 if __name__ == "__main__":
     app.run_server(debug=True)
