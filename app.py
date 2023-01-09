@@ -101,7 +101,19 @@ app.layout = dbc.Container(
                                         dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', value=['Lightweight'], multi=True),
                                         # dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
                                     ]
-                                )
+                                ),
+				                html.Div(
+				                    [
+				                        html.Ul(
+				                        	[
+					                        	html.Li("Winlose Score = Wins - Losses.", style={'padding-bottom': '10px'}),
+					                        	html.Li("Finish Score = KO/TKOs + Submission - Decision. Only counting wins.", style={'padding-bottom': '10px'}),
+					                        	html.Li("Finish Rate = KO/TKOs + Submission - Decision."),
+				                        	],
+				                        ),
+				                    ],
+				                    style={'padding-top': '10px'}
+				                ),
                             ],
                             id="column-1",
                             width=2,
@@ -176,7 +188,7 @@ def update_line_chart(group, names, value, weight):
 		all_data = all_r_data
 		structure = structure_r
 
-	if weight == None or group == "Referees":
+	if weight == None or weight == [] or group == "Referees":
 		weight = weights
 
 	df= pd.DataFrame(all_data, columns=structure)
@@ -204,7 +216,7 @@ def update_datatable(group, value, weight):
 		all_data = all_r_data
 		structure = structure_r
 
-	if weight == None or group == "Referees":
+	if weight == None or weight == [] or group == "Referees":
 		weight = weights
 
 	df= pd.DataFrame(all_data, columns=structure)
