@@ -33,7 +33,7 @@ yesno_options = [{'label': s, 'value': s} for s in ["Yes", "No"]]
 
 structure_f = ["Name", "Date", "Winlose Score","Finish Score", "Finish Rate", "KO/TKO", "Submission", "Decision", "Wins", "Losses", "Draws/NCs",
 			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time", "Weight"]
-structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score", "Weight"]
+structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish Score", "Weight"]
 
 by_f = [{'label': s, 'value': s} for s in structure_f[2:]]
 by_r = [{'label': s, 'value': s} for s in structure_r[2:]]
@@ -100,6 +100,7 @@ app.layout = dbc.Container(
                                         dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['All'], multi=True),
                                         dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', value=['Lightweight'], multi=True),
                                         # dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
+                                        html.Div(dcc.RangeSlider(id="filter_graph_slider", min=0, max=20, value=[0, 20]), style={'padding-top': '15px'}),
                                     ]
                                 ),
 				                html.Div(
@@ -172,8 +173,9 @@ app.layout = dbc.Container(
     [Input("filter_graph_group", "value"),
     Input("filter_graph_person", "value"),
 	Input("filter_graph_by", "value"),
-	Input("filter_graph_weight", "value")])
-def update_line_chart(group, names, value, weight):
+	Input("filter_graph_weight", "value"),
+	Input("filter_graph_slider", "value")])
+def update_line_chart(group, names, value, weight, slider):
 	if group == "Fighters":
 		if 'All' in names:
 			names = all_f_names
@@ -239,23 +241,42 @@ def update_datatable(group, value, weight):
 
 @app.callback(
     Output("filter_graph_person", "options"),
+    Output("filter_graph_person", "value"),
+    [Input("filter_graph_group", "value"),
+    Input("filter_graph_person", "value")])
+def update_filter_graph(value, name):
+	if value == "Fighters":
+		names = all_f_names_options
+		name_check = all_f_names
+	else:
+		names = all_r_names_options
+		name_check = all_r_names
+
+	print(['All'] + name_check)
+	name_list = []
+	for n in name:
+		if n in ['All'] + name_check:
+			name_list.append(name)
+
+	return names, name
+
+@app.callback(
     Output("filter_graph_by", "options"),
     Output("filter_graph_by", "value"),
     [Input("filter_graph_group", "value"),
     Input("filter_graph_by", "value")])
 def update_filter_graph(value, by_value):
 	if value == "Fighters":
-		names = all_f_names_options
+		structure = structure_f
 		by = by_f
-		if by_value not in structure_f[2:]:
-			by_value = "Finish score"
 	else:
-		names = all_r_names_options
+		structure = structure_r
 		by = by_r
-		if by_value not in structure_r[2:]:
-			by_value = "Finish score"
 
-	return names, by, by_value
+	if by_value not in structure:
+		by_value = "Finish Score"
+
+	return by, by_value
 
 
 if __name__ == "__main__":
