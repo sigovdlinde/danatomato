@@ -40,6 +40,8 @@ by_r = [{'label': s, 'value': s} for s in structure_r[2:]]
 
 load_figure_template("sketchy")
 
+style_button = {'border': 'none', 'display': 'block'}
+
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 app = Dash(__name__, external_stylesheets=[dbc.themes.SKETCHY, dbc_css])
 server = app.server
@@ -49,7 +51,7 @@ app.title = "Tomato"
 app.layout = dbc.Container(
     [
         # Header
-        dbc.Card(
+        html.Div(
             [
                 dbc.CardBody(
                     [
@@ -82,11 +84,6 @@ app.layout = dbc.Container(
                     ]
                 )
             ],
-            # style={
-            #     "background-color": "#262B30",
-            #     "color": "white",
-            #     "padding": "20px",
-            # },
         ),
         # Body
         dbc.Container(
@@ -95,22 +92,22 @@ app.layout = dbc.Container(
                     [
                         dbc.Col(
                             [
-                                html.Div(
+                                dbc.Card(
                                     [
-                                        dcc.Dropdown(id="filter_graph_chart", options=chart_options, placeholder='Select Graph', value='Line'),
-                                        dcc.Dropdown(id="filter_graph_group", options=group_options, placeholder='Select Group', value='Referees'),
-                                        dcc.Dropdown(id="filter_graph_person", placeholder='Select Person(s)', value=['Herb Dean', 'Keith Peterson'], multi=True),
-                                        dcc.Dropdown(id="filter_graph_weight", options=weight_options, placeholder='Select Weight', multi=True),
-                                        dcc.Dropdown(id="filter_graph_by", placeholder='Select Option', value='KO/TKO'),
-                                        dcc.Dropdown(id="filter_graph_percentage", options=yesno_options, value='No'),
+                                        dcc.Dropdown(id="filter_graph_chart", style=style_button, options=chart_options, placeholder='Select Graph', value='Line'),
+                                        dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Referees'),
+                                        dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['Herb Dean', 'Keith Peterson'], multi=True),
+                                        dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', multi=True),
+                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option', value='KO/TKO'),
+                                        dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
                                     ]
                                 )
                             ],
                             id="column-1",
                             width=2,
                         ),
-                        dbc.Col(dcc.Graph(id="graph_line", config={"displayModeBar": False}, className="container"), width=7),
-						dbc.Col(
+                        dbc.Col(dbc.Card(dcc.Graph(id="graph_line", config={"displayModeBar": False}, className="container")), width=7),
+						dbc.Col(dbc.Card(
 						    dash_table.DataTable(
 						        id="datatable1",
 						        style_table={'overflowY': 'scroll', 'height': '450px'},
@@ -123,10 +120,10 @@ app.layout = dbc.Container(
 						                'if': {'column_id': 'Name'},
 						                'textAlign': 'left',
 						                'padding-left': '30px'
-						            },
+						            }
 						        ],
 						        style_as_list_view=True,
-						    ),
+						    )),
 						    width=3,
 						    className="dbc dbc-row-selectable"
 						),
@@ -171,7 +168,7 @@ def update_line_chart(group, names, value):
 
 @app.callback(
     Output("datatable1", "data"),
-    Output("datatable1", "columns"), 
+    Output("datatable1", "columns"),
     [Input("filter_graph_group", "value"),
 	Input("filter_graph_by", "value")])
 def update_datatable(group, value):
@@ -195,7 +192,7 @@ def update_datatable(group, value):
 	df.columns = ["#", "Name", value]
 	columns =  [{"name": i, "id": i,} for i in (df.columns)]
 
-	return df[:100].to_dict('records'), columns
+	return df[:250].to_dict('records'), columns
 
 @app.callback(
     Output("filter_graph_person", "options"),
