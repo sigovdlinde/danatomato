@@ -9,6 +9,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
+from datetime import datetime, timedelta
+
 from functions import *
 
 all_fight_data = open_data('all_fight_data')
@@ -30,7 +32,7 @@ chart_options = [{'label': s, 'value': s} for s in ["Line", "Bar"]]
 yesno_options = [{'label': s, 'value': s} for s in ["Yes", "No"]]
 
 structure_f = ["Name", "Date", "Winlose score", "KO/TKO", "Submission", "Decision", "Finish score", "Wins", "Losses", "Draws/NCs",
-			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time"]
+			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time", "Weight"]
 structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score"]
 
 structure_t = ["KO/TKO", "Submission", "Decision", "Finish score"]
@@ -95,10 +97,10 @@ app.layout = dbc.Container(
                                 dbc.Card(
                                     [
                                         dcc.Dropdown(id="filter_graph_chart", style=style_button, options=chart_options, placeholder='Select Graph', value='Line'),
-                                        dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Referees'),
-                                        dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['Herb Dean', 'Keith Peterson'], multi=True),
+                                        dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Fighters'),
+                                        dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['Sam Alvey ', 'Jon Jones '], multi=True),
                                         dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', multi=True),
-                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option', value='KO/TKO'),
+                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option', value='Winlose score'),
                                         dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
                                     ]
                                 )
@@ -134,7 +136,6 @@ app.layout = dbc.Container(
                 ),
                 dbc.Row(id="row-2"),
             ],
-            # style={"padding": "20px"},
             fluid=True,
         ),
     ], 
@@ -146,8 +147,9 @@ app.layout = dbc.Container(
     Output("graph_line", "figure"), 
     [Input("filter_graph_group", "value"),
     Input("filter_graph_person", "value"),
-	Input("filter_graph_by", "value")])
-def update_line_chart(group, names, value):
+	Input("filter_graph_by", "value"),
+	Input("filter_graph_weight", "value")])
+def update_line_chart(group, names, value, w):
 	if group == "Fighters":
 		if 'All' in names:
 			names = all_f_names
@@ -164,9 +166,14 @@ def update_line_chart(group, names, value):
 
 	df= pd.DataFrame(all_data, columns=structure)
 	df = df[df['Name'].isin(names)]
+	if value == "Control Time":
+		df['Control Time'] = df['Control Time'].apply(lambda x: x.total_seconds())
+
+	print(df[['Name', 'Date', value]])
 
 	fig = px.line(df, x="Date", y=value, color="Name")
 	fig.update_layout(showlegend=False)
+	fig.update_traces(line_color='black', line_width=0.7)
 	return fig
 
 @app.callback(
@@ -194,6 +201,9 @@ def update_datatable(group, value):
 	df = df.reset_index(level=0)
 	df.columns = ["#", "Name", value]
 	columns =  [{"name": i, "id": i,} for i in (df.columns)]
+
+	if value == "Control Time":
+		df[value] = df[value].apply(lambda x: (datetime(1900, 1, 1) + x).strftime('%H:%M:%S'))
 
 	return df[:250].to_dict('records'), columns
 
