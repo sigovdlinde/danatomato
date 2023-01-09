@@ -51,40 +51,40 @@ app.title = "Tomato"
 app.layout = dbc.Container(
     [
         # Header
-        html.Div(
-            [
-                dbc.CardBody(
-                    [
-		                dbc.Row(
-		                    [
-		                        dbc.Col(
-		                            html.Img(src='assets/danatomato.png', width=180, height=150),
-		                            width=2,
-		                        ),
-		                        dbc.Col(
-		                            [
-						                html.Div(
-						                    [
-						                        html.H1("Sam Alvey Fan Page"),
-						                        html.P("“Unfortunately, it didn’t go my way again.” - Sam Alvey"),
-						                    ],
-						                    className="text-center"
-						                ),
-		                            ],
-		                            width=8,
-		                            className="align-items-center justify-content-center"
-		                        ),
-		                        dbc.Col(
-		                            html.Img(src='assets/samciggie.png', width=150, height=150),
-		                            width=2,
-		                        ),
-		                    ],
-		                    className="align-items-center",
-		                )
-                    ]
-                )
-            ],
-        ),
+        # dbc.Card(
+        #     [
+        #         dbc.CardBody(
+        #             [
+		#                 dbc.Row(
+		#                     [
+		#                         dbc.Col(
+		#                             html.Img(src='assets/danatomato.png', width='50%', height='50%'),
+		#                             width=2,
+		#                         ),
+		#                         dbc.Col(
+		#                             [
+		# 				                html.Div(
+		# 				                    [
+		# 				                        html.H3("Sam Alvey Fan Page")
+		# 				                    ],
+		# 				                    className="text-center"
+		# 				                ),
+		#                             ],
+		#                             # Change width to 8 when adding images back.
+		#                             width=12,
+		#                             className="align-items-center justify-content-center"
+		#                         ),
+		#                         dbc.Col(
+		#                             html.Img(src='assets/samciggie.png', width='40%', height='40%'),
+		#                             width=2,
+		#                         ),
+		#                     ],
+		#                     className="align-items-center",
+		#                 )
+        #             ]
+        #         )
+        #     ],
+        # ),
         # Body
         dbc.Container(
             [
@@ -132,13 +132,27 @@ app.layout = dbc.Container(
 						),
                     ]
                 ),
-                dbc.Row(id="row-2"),
+                dbc.Row(
+	                html.Div(
+	                    [
+	                        html.P("“I'm fuckin red I just gotta deal with it” - Dana White"),
+	                    ],
+	                    className="text-center"
+	                ),
+			        style={
+			            "position": "fixed",
+			            "bottom": "0",
+			            "width": "100%",
+			        },
+                ),
             ],
             fluid=True,
+            style={'padding-top': '10px'}
         ),
     ], 
     fluid=True,
-    className="dbc"
+    className="dbc",
+    style={'padding-top': '10px'}
 )
 
 @app.callback(
