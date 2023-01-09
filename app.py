@@ -20,10 +20,10 @@ all_r_data = open_data('all_r_data')
 all_f_names = all_fighter_names(all_fight_data)
 all_r_names = all_referee_names(all_fight_data)
 
-weight = ["Heavyweight", "Light Heavyweight", "Middleweight", "Welterweight", "Lightweight", "Featherweight", "Bantamweight", 
+weights = ["Heavyweight", "Light Heavyweight", "Middleweight", "Welterweight", "Lightweight", "Featherweight", "Bantamweight", 
 		  "Flyweight", "Women's Bantamweight", "Women's Strawweight", "Women's Flyweight", "Women's Featherweight", "Open Weight", "Super Heavyweight", "Catch Weight"]
 
-weight_options = [{'label': s, 'value': s} for s in ['All'] + weight]
+weight_options = [{'label': s, 'value': s} for s in weights]
 all_f_names_options = [{'label': s, 'value': s} for s in ['All'] + all_f_names]
 all_r_names_options = [{'label': s, 'value': s} for s in ['All'] + all_r_names]
 
@@ -33,7 +33,7 @@ yesno_options = [{'label': s, 'value': s} for s in ["Yes", "No"]]
 
 structure_f = ["Name", "Date", "Winlose score", "KO/TKO", "Submission", "Decision", "Finish score", "Wins", "Losses", "Draws/NCs",
 			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time", "Weight"]
-structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score"]
+structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score", "Weight"]
 
 structure_t = ["KO/TKO", "Submission", "Decision", "Finish score"]
 
@@ -67,8 +67,8 @@ app.layout = dbc.Container(
 		                            [
 						                html.Div(
 						                    [
-						                        html.H1("Tomato Dashboard"),
-						                        html.P("“I bet every single card, just about every fight” -  James “The James Krause” Krause"),
+						                        html.H1("Sam Alvey Fan Page"),
+						                        html.P("“Unfortunately, it didn’t go my way again.” - Sam Alvey"),
 						                    ],
 						                    className="text-center"
 						                ),
@@ -149,7 +149,7 @@ app.layout = dbc.Container(
     Input("filter_graph_person", "value"),
 	Input("filter_graph_by", "value"),
 	Input("filter_graph_weight", "value")])
-def update_line_chart(group, names, value, w):
+def update_line_chart(group, names, value, weight):
 	if group == "Fighters":
 		if 'All' in names:
 			names = all_f_names
@@ -164,12 +164,13 @@ def update_line_chart(group, names, value, w):
 		all_data = all_r_data
 		structure = structure_r
 
+	if weight == None or group == "Referees":
+		weight = weights
+
 	df= pd.DataFrame(all_data, columns=structure)
-	df = df[df['Name'].isin(names)]
+	df = df[df['Name'].isin(names) & df['Weight'].isin(weight)]
 	if value == "Control Time":
 		df['Control Time'] = df['Control Time'].apply(lambda x: x.total_seconds())
-
-	print(df[['Name', 'Date', value]])
 
 	fig = px.line(df, x="Date", y=value, color="Name")
 	fig.update_layout(showlegend=False)
@@ -180,8 +181,9 @@ def update_line_chart(group, names, value, w):
     Output("datatable1", "data"),
     Output("datatable1", "columns"),
     [Input("filter_graph_group", "value"),
-	Input("filter_graph_by", "value")])
-def update_datatable(group, value):
+	Input("filter_graph_by", "value"),
+	Input("filter_graph_weight", "value")])
+def update_datatable(group, value, weight):
 	if group == "Fighters":
 		all_data = all_f_data
 		structure = structure_f
@@ -190,12 +192,16 @@ def update_datatable(group, value):
 		all_data = all_r_data
 		structure = structure_r
 
+	if weight == None or group == "Referees":
+		weight = weights
+
 	df= pd.DataFrame(all_data, columns=structure)
+	df = df[df['Weight'].isin(weight)]
+
 	df = df.sort_values(by='Date', ascending=False)
 	df = df.drop_duplicates(subset='Name', keep='first')
 	df = df[["Name", value]]
 
-	# print(df)
 	df = df.sort_values(value, ascending=False).reset_index(drop=True)
 	df.index += 1
 	df = df.reset_index(level=0)
