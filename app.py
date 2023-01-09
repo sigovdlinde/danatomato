@@ -31,11 +31,9 @@ group_options = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
 chart_options = [{'label': s, 'value': s} for s in ["Line", "Bar"]]
 yesno_options = [{'label': s, 'value': s} for s in ["Yes", "No"]]
 
-structure_f = ["Name", "Date", "Winlose score", "KO/TKO", "Submission", "Decision", "Finish score", "Wins", "Losses", "Draws/NCs",
+structure_f = ["Name", "Date", "Winlose Score","Finish Score", "Finish Rate", "KO/TKO", "Submission", "Decision", "Wins", "Losses", "Draws/NCs",
 			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time", "Weight"]
 structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish score", "Weight"]
-
-structure_t = ["KO/TKO", "Submission", "Decision", "Finish score"]
 
 by_f = [{'label': s, 'value': s} for s in structure_f[2:]]
 by_r = [{'label': s, 'value': s} for s in structure_r[2:]]
@@ -100,7 +98,7 @@ app.layout = dbc.Container(
                                         dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Fighters'),
                                         dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['Sam Alvey ', 'Jon Jones '], multi=True),
                                         dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', multi=True),
-                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option', value='Winlose score'),
+                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option', value='Winlose Score'),
                                         dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
                                     ]
                                 )
