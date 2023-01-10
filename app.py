@@ -17,6 +17,8 @@ all_fight_data = open_data('all_fight_data')
 all_f_data = open_data('all_f_data')
 all_r_data = open_data('all_r_data')
 
+all_f_data_pf = open_data('all_f_data_pf')
+
 all_f_names = all_fighter_names(all_fight_data)
 all_r_names = all_referee_names(all_fight_data)
 
@@ -30,20 +32,30 @@ all_r_names_options = [{'label': s, 'value': s} for s in ['All'] + all_r_names]
 group_options = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
 chart_options = [{'label': s, 'value': s} for s in ["Line", "Bar"]]
 yesno_options = [{'label': s, 'value': s} for s in ["Yes", "No"]]
-total_options = [{'label': s, 'value': s} for s in ["Total", "Per Fight"]]
+cum_options = [{'label': s, 'value': s} for s in ["Cumulative", "Per Fight"]]
 
 structure_f = ["Name", "Date", "Winlose Score","Finish Score", "Finish Rate", "KO/TKO", "Submission", "Decision", "Wins", "Losses", "Draws/NCs",
 			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time", "Weight",
 			   "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", "Distance", "Clinch", "Ground"]
 structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish Rate", "Weight"]
 
+structure_f_pf = ["Name", "Date", "Opponent", "Weight", "Win", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
+				 "Submission Attempted", "Control Time", "Significant Strikes", "Attempted Strikes", "Accuracy", 
+				 "Head", "Body", "Leg", "Distance", "Clinch", "Ground"] 
+
 by_fighter = ["Winlose Score","Finish Score", "Finish Rate", "KO/TKO", "Submission", "Decision", "Wins", "Losses", "Draws/NCs",
 			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time",
 			   "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", "Distance", "Clinch", "Ground"]
 by_referee = ["KO/TKO", "Submission", "Decision", "Finish Rate"]
 
+by_fighter_pf = ["Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", 
+						"Control Time", "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", 
+						"Distance", "Clinch", "Ground"] 
+
 by_f = [{'label': s, 'value': s} for s in by_fighter]
 by_r = [{'label': s, 'value': s} for s in by_referee]
+
+by_f_pf = [{'label': s, 'value': s} for s in by_fighter_pf]
 
 load_figure_template("sketchy")
 
@@ -66,10 +78,10 @@ app.layout = dbc.Container(
                             [
                                 html.Div(dbc.Card(
                                     [
-                                        dcc.Dropdown(id="filter_graph_chart", style=style_button, options=chart_options, placeholder='Select Graph', value='Line'),
-                                        dcc.Dropdown(id="filter_graph_total", style=style_button, options=total_options, value='Total'),
+                                        # dcc.Dropdown(id="filter_graph_chart", style=style_button, options=chart_options, placeholder='Select Graph', value='Line'),
+                                        dcc.Dropdown(id="filter_graph_cum", style=style_button, options=cum_options, value='Cumulative'),
                                         dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Fighters'),
-                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option', value='Finish Rate'),
+                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option'),
                                         dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['All'], multi=True),
                                         dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', value=['Lightweight'], multi=True),
                                         # dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
@@ -169,17 +181,22 @@ app.layout = dbc.Container(
 
 @app.callback(
     Output("graph_line", "figure"), 
-    [Input("filter_graph_group", "value"),
+    [Input("filter_graph_cum", "value"),
+    Input("filter_graph_group", "value"),
     Input("filter_graph_person", "value"),
 	Input("filter_graph_by", "value"),
 	Input("filter_graph_weight", "value")])
-def update_line_chart(group, names, value, weight):
+def update_line_chart(cum, group, names, value, weight):
 	if group == "Fighters":
 		if 'All' in names:
 			names = all_f_names
 
-		all_data = all_f_data
-		structure = structure_f
+		if cum == 'Per Fight':
+			all_data = all_f_data_pf
+			structure = structure_f_pf
+		else:
+			all_data = all_f_data
+			structure = structure_f
 
 	elif group == "Referees":
 		if "All" in names:
@@ -193,12 +210,22 @@ def update_line_chart(group, names, value, weight):
 
 	df= pd.DataFrame(all_data, columns=structure)
 	df = df[df['Name'].isin(names) & df['Weight'].isin(weight)]
+
 	if value == "Control Time":
+		df = df.fillna(value=timedelta())
 		df['Control Time'] = df['Control Time'].apply(lambda x: x.total_seconds())
 
-	fig = px.line(df, x="Date", y=value, color="Name")
+	if cum == 'Per Fight':
+		if group == "Referees":
+			fig = px.scatter(df, x="Date", y=value, color="Name")
+		else:
+			fig = px.scatter(df, x="Date", y=value, color="Name", hover_data={"Opponent":True})
+		fig.update_traces(marker=dict(size=4, color='black'))
+	else:
+		fig = px.line(df, x="Date", y=value, color="Name")
+		fig.update_traces(line_color='black', line_width=0.7)
+
 	fig.update_layout(showlegend=False)
-	fig.update_traces(line_color='black', line_width=0.7)
 	return fig
 
 @app.callback(
@@ -206,13 +233,18 @@ def update_line_chart(group, names, value, weight):
     Output("datatable1", "columns"),
     Output("datatable2", "data"),
     Output("datatable2", "columns"),
-    [Input("filter_graph_group", "value"),
+    [Input("filter_graph_cum", "value"),
+    Input("filter_graph_group", "value"),
 	Input("filter_graph_by", "value"),
 	Input("filter_graph_weight", "value")])
-def update_datatable(group, value, weight):
+def update_datatable(cum, group, value, weight):
 	if group == "Fighters":
-		all_data = all_f_data
-		structure = structure_f
+		if cum == 'Per Fight':
+			all_data = all_f_data_pf
+			structure = structure_f_pf
+		else:
+			all_data = all_f_data
+			structure = structure_f
 
 	elif group == "Referees":
 		all_data = all_r_data
@@ -224,10 +256,11 @@ def update_datatable(group, value, weight):
 	df= pd.DataFrame(all_data, columns=structure)
 	df = df[df['Weight'].isin(weight)]
 
-	df = df.sort_values(by='Date', ascending=False)
-	df = df.drop_duplicates(subset='Name', keep='first')
-	df = df[["Name", value]]
+	if cum == 'Cumulative':
+		df = df.sort_values(by='Date', ascending=False)
+		df = df.drop_duplicates(subset='Name', keep='first')
 
+	df = df[["Name", value]]
 	df = df.sort_values(value, ascending=False).reset_index(drop=True)
 	df.index += 1
 	df = df.reset_index(level=0)
@@ -235,9 +268,23 @@ def update_datatable(group, value, weight):
 	columns =  [{"name": i, "id": i,} for i in (df.columns)]
 
 	if value == "Control Time":
+		df = df.fillna(value=timedelta())
 		df[value] = df[value].apply(lambda x: (datetime(1900, 1, 1) + x).strftime('%H:%M:%S'))
 
 	return df[:250].to_dict('records'), columns, df[::-1][:250].to_dict('records'), columns
+
+@app.callback(
+    Output("filter_graph_group", "disabled"),
+    Output("filter_graph_group", "value"),
+    [Input("filter_graph_cum", "value")])
+def update_filter_graph_group(cum):
+	if cum == 'Per Fight':
+		disabled = True
+	else:
+		disabled = False
+	
+	value = "Fighters"
+	return disabled, value
 
 @app.callback(
     Output("filter_graph_person", "options"),
@@ -262,18 +309,23 @@ def update_filter_graph_person(value, name):
 @app.callback(
     Output("filter_graph_by", "options"),
     Output("filter_graph_by", "value"),
-    [Input("filter_graph_group", "value"),
+    [Input("filter_graph_cum", "value"),
+    Input("filter_graph_group", "value"),
     Input("filter_graph_by", "value")])
-def update_filter_graph_by(value, by_value):
+def update_filter_graph_by(cum, value, by_value):
 	if value == "Fighters":
-		structure = structure_f
-		by = by_f
+		if cum == 'Per Fight':
+			structure = structure_f_pf
+			by = by_f_pf
+		else:
+			structure = structure_f
+			by = by_f
 	else:
 		structure = structure_r
 		by = by_r
 
 	if by_value not in structure:
-		by_value = "Finish Rate"
+		by_value = "KO/TKO"
 
 	return by, by_value
 
