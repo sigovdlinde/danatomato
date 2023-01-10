@@ -30,13 +30,20 @@ all_r_names_options = [{'label': s, 'value': s} for s in ['All'] + all_r_names]
 group_options = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
 chart_options = [{'label': s, 'value': s} for s in ["Line", "Bar"]]
 yesno_options = [{'label': s, 'value': s} for s in ["Yes", "No"]]
+total_options = [{'label': s, 'value': s} for s in ["Total", "Per Fight"]]
 
 structure_f = ["Name", "Date", "Winlose Score","Finish Score", "Finish Rate", "KO/TKO", "Submission", "Decision", "Wins", "Losses", "Draws/NCs",
-			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time", "Weight"]
-structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish Score", "Weight"]
+			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time", "Weight",
+			   "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", "Distance", "Clinch", "Ground"]
+structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish Rate", "Weight"]
 
-by_f = [{'label': s, 'value': s} for s in structure_f[2:]]
-by_r = [{'label': s, 'value': s} for s in structure_r[2:]]
+by_fighter = ["Winlose Score","Finish Score", "Finish Rate", "KO/TKO", "Submission", "Decision", "Wins", "Losses", "Draws/NCs",
+			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time",
+			   "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", "Distance", "Clinch", "Ground"]
+by_referee = ["KO/TKO", "Submission", "Decision", "Finish Rate"]
+
+by_f = [{'label': s, 'value': s} for s in by_fighter]
+by_r = [{'label': s, 'value': s} for s in by_referee]
 
 load_figure_template("sketchy")
 
@@ -92,27 +99,28 @@ app.layout = dbc.Container(
                     [
                         dbc.Col(
                             [
-                                dbc.Card(
+                                html.Div(dbc.Card(
                                     [
                                         dcc.Dropdown(id="filter_graph_chart", style=style_button, options=chart_options, placeholder='Select Graph', value='Line'),
+                                        dcc.Dropdown(id="filter_graph_total", style=style_button, options=total_options, value='Total'),
                                         dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Fighters'),
                                         dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option', value='Finish Rate'),
                                         dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['All'], multi=True),
                                         dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', value=['Lightweight'], multi=True),
                                         # dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
-                                    ]
-                                ),
-				                html.Div(
+                                    ], 
+                                ),style={'padding-bottom': '15px'}),
+				                dbc.Card(
 				                    [
 				                        html.Ul(
 				                        	[
 					                        	html.Li("Winlose Score = Wins - Losses.", style={'padding-bottom': '10px'}),
-					                        	html.Li("Finish Score = KO/TKOs + Submission - Decision. Only counting wins.", style={'padding-bottom': '10px'}),
-					                        	html.Li("Finish Rate = KO/TKOs + Submission - Decision."),
+					                        	html.Li("Finish Score = KO/TKOs + Submissions - Decisions. Only counting wins.", style={'padding-bottom': '10px'}),
+					                        	html.Li("Finish Rate = KO/TKOs + Submissions - Decisions."),
 				                        	],
 				                        ),
-				                    ],
-				                    style={'padding-top': '10px'}
+				                    ], style={'padding-top': '10px'}
+				                    
 				                ),
                             ],
                             id="column-1",
@@ -250,7 +258,6 @@ def update_filter_graph_person(value, name):
 		names = all_r_names_options
 		name_check = all_r_names
 
-	print(['All'] + name_check)
 	name_list = []
 	for n in name:
 		if n in ['All'] + name_check:
@@ -272,7 +279,7 @@ def update_filter_graph_by(value, by_value):
 		by = by_r
 
 	if by_value not in structure:
-		by_value = "Finish Score"
+		by_value = "Finish Rate"
 
 	return by, by_value
 
