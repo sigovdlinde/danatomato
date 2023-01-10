@@ -39,7 +39,7 @@ structure_f = ["Name", "Date", "Winlose Score","Finish Score", "Finish Rate", "K
 			   "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", "Distance", "Clinch", "Ground"]
 structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish Rate", "Weight"]
 
-structure_f_pf = ["Name", "Date", "Opponent", "Weight", "Win", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
+structure_f_pf = ["Name", "Date", "Opponent", "Weight", "Method", "Win", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
 				 "Submission Attempted", "Control Time", "Significant Strikes", "Attempted Strikes", "Accuracy", 
 				 "Head", "Body", "Leg", "Distance", "Clinch", "Ground"] 
 
@@ -156,6 +156,32 @@ app.layout = dbc.Container(
 						),
                     ]
                 ),
+                dbc.Row(dbc.Card(
+                	dash_table.DataTable(
+                		id="datatable3",
+                		cell_selectable=False,
+                		style_table={'overflowY': 'scroll', 'height': '450px'},
+				        style_cell={
+				            'border': '0px solid white',
+				            'backgroundColor': 'transparent'
+				        },
+				        style_cell_conditional=[
+						    {
+						        'textAlign': 'center'
+						    },
+				            {
+				                'if': {'column_id': 'Name'},
+				                'textAlign': 'left',
+				            },
+				            {
+				                'if': {'column_id': 'Date'},
+				                'textAlign': 'left',
+				            },
+				        ],
+                		style_as_list_view=True,
+                	)
+
+                ), style={'padding-top': '15px'}),
                 dbc.Row(
 	                html.Div(
 	                    [
@@ -176,8 +202,44 @@ app.layout = dbc.Container(
     ], 
     fluid=True,
     className="dbc",
-    style={'padding-top': '10px'}
+    style={'padding-top': '1px'}
 )
+
+@app.callback(
+    Output("datatable3", "data"),
+    Output("datatable3", "columns"),
+    [Input("filter_graph_cum", "value"),
+    Input("filter_graph_group", "value"),
+    Input("filter_graph_person", "value"),
+	Input("filter_graph_by", "value"),
+	Input("filter_graph_weight", "value")])
+def update_datatable3(cum, group, name, value, weight):
+	all_data = all_f_data_pf
+	structure = structure_f_pf
+
+	if weight == None or weight == [] or group == "Referees":
+		weight = weights
+
+	df= pd.DataFrame(all_data, columns=structure)
+	if weight == None or weight == []:
+		weight = weights
+	df = df[df['Weight'].isin(weight)]
+
+	if name == None or name == ['All']:
+		name = all_f_names
+	df = df[df['Name'].isin(name)]
+
+	columns = ["Name", "Date", "Opponent", "Win", "Method", "Significant Strikes", "Attempted Strikes", "Accuracy", 
+				 "Head", "Body", "Leg", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals"]
+	df["Win"] = df["Win"].replace([0, 1, 2], ["Win", "Loss", "Draw/NC"])
+	df = df[columns]
+	df = df.sort_values('Date').reset_index(drop=True)
+	df.columns = columns
+	df = df.rename(columns = {'Win':'Result'})
+	df.Date = pd.DatetimeIndex(df.Date).strftime("%Y-%m-%d")
+	columns =  [{"name": i, "id": i,} for i in (df.columns)]
+
+	return df[::-1][:250].to_dict('records'), columns
 
 @app.callback(
     Output("graph_line", "figure"), 
