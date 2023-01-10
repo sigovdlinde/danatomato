@@ -329,5 +329,18 @@ def update_filter_graph_by(cum, value, by_value):
 
 	return by, by_value
 
+@app.callback(
+    Output("filter_graph_weight", "disabled"),
+    Output("filter_graph_weight", "value"),
+    [Input("filter_graph_group", "value")])
+def update_filter_graph_group(group):
+	if group == 'Referees':
+		disabled = True
+	else:
+		disabled = False
+	
+	value = []
+	return disabled, value
+
 if __name__ == "__main__":
     app.run_server(debug=True)
