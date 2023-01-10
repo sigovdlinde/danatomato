@@ -199,10 +199,18 @@ app.layout = dbc.Container(
             fluid=True,
             style={'padding-top': '10px'}
         ),
-    ], 
-    fluid=True,
-    className="dbc",
-    style={'padding-top': '1px'}
+	    html.Script(src="https://www.googletagmanager.com/gtag/js?id=G-273RFDY9XD"),
+	    html.Script('''
+	        window.dataLayer = window.dataLayer || [];
+	        function gtag(){dataLayer.push(arguments);}
+	        gtag('js', new Date());
+
+	        gtag('config', 'G-273RFDY9XD');
+	    ''')
+	    ], 
+	    fluid=True,
+	    className="dbc",
+	    style={'padding-top': '1px'}
 )
 
 @app.callback(
