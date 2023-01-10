@@ -67,6 +67,20 @@ server = app.server
 
 app.title = "Tomato"
 
+app.html_layout = """<!DOCTYPE html>
+<html>
+    <head>
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-273RFDY9XD"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'G-273RFDY9XD');
+		</script>
+</head>"""
+
 app.layout = dbc.Container(
     [
         # Body
@@ -199,14 +213,6 @@ app.layout = dbc.Container(
             fluid=True,
             style={'padding-top': '10px'}
         ),
-	    html.Script(src="https://www.googletagmanager.com/gtag/js?id=G-273RFDY9XD"),
-	    html.Script('''
-	        window.dataLayer = window.dataLayer || [];
-	        function gtag(){dataLayer.push(arguments);}
-	        gtag('js', new Date());
-
-	        gtag('config', 'G-273RFDY9XD');
-	    ''')
 	    ], 
 	    fluid=True,
 	    className="dbc",
