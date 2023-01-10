@@ -57,41 +57,6 @@ app.title = "Tomato"
 
 app.layout = dbc.Container(
     [
-        # Header
-        # dbc.Card(
-        #     [
-        #         dbc.CardBody(
-        #             [
-		#                 dbc.Row(
-		#                     [
-		#                         dbc.Col(
-		#                             html.Img(src='assets/danatomato.png', width='50%', height='50%'),
-		#                             width=2,
-		#                         ),
-		#                         dbc.Col(
-		#                             [
-		# 				                html.Div(
-		# 				                    [
-		# 				                        html.H3("Sam Alvey Fan Page")
-		# 				                    ],
-		# 				                    className="text-center"
-		# 				                ),
-		#                             ],
-		#                             # Change width to 8 when adding images back.
-		#                             width=12,
-		#                             className="align-items-center justify-content-center"
-		#                         ),
-		#                         dbc.Col(
-		#                             html.Img(src='assets/samciggie.png', width='40%', height='40%'),
-		#                             width=2,
-		#                         ),
-		#                     ],
-		#                     className="align-items-center",
-		#                 )
-        #             ]
-        #         )
-        #     ],
-        # ),
         # Body
         dbc.Container(
             [
@@ -127,25 +92,52 @@ app.layout = dbc.Container(
                             width=2,
                         ),
                         dbc.Col(dbc.Card(dcc.Graph(id="graph_line", config={"displayModeBar": False}, className="container")), width=7),
-						dbc.Col(dbc.Card(
-						    dash_table.DataTable(
-						        id="datatable1",
-						        style_table={'overflowY': 'scroll', 'height': '450px'},
-						        style_cell={
-						            'border': '0px solid white',
-						            'backgroundColor': 'transparent'
-						        },
-						        style_cell_conditional=[
-								    {
-								        'textAlign': 'center'
-								    },
-						            {
-						                'if': {'column_id': 'Name'},
-						                'textAlign': 'left',
-						                'padding-left': '30px'
-						            },
-						        ],
-						        style_as_list_view=True,
+						dbc.Col(dbc.Card(dcc.Tabs(
+							[
+							    dcc.Tab(label='Top', children=[dash_table.DataTable(
+								        id="datatable1",
+								        cell_selectable=False,
+								        style_table={'overflowY': 'scroll', 'height': '450px'},
+								        style_cell={
+								            'border': '0px solid white',
+								            'backgroundColor': 'transparent'
+								        },
+								        style_cell_conditional=[
+										    {
+										        'textAlign': 'center'
+										    },
+								            {
+								                'if': {'column_id': 'Name'},
+								                'textAlign': 'left',
+								                'padding-left': '30px'
+								            },
+								        ],
+								        style_as_list_view=True,
+								    )
+							    ]),
+							    dcc.Tab(label='Bottom', children=[dash_table.DataTable(
+								        id="datatable2",
+								        cell_selectable=False,
+								        style_table={'overflowY': 'scroll', 'height': '450px'},
+								        style_cell={
+								            'border': '0px solid white',
+								            'backgroundColor': 'transparent'
+								        },
+								        style_cell_conditional=[
+										    {
+										        'textAlign': 'center'
+										    },
+								            {
+								                'if': {'column_id': 'Name'},
+								                'textAlign': 'left',
+								                'padding-left': '30px'
+								            },
+								        ],
+								        style_as_list_view=True,
+								    )
+							    ]),
+
+						    ], style={'height': '50px'}
 						    )),
 						    width=3,
 						    className="dbc dbc-row-selectable"
@@ -212,6 +204,8 @@ def update_line_chart(group, names, value, weight):
 @app.callback(
     Output("datatable1", "data"),
     Output("datatable1", "columns"),
+    Output("datatable2", "data"),
+    Output("datatable2", "columns"),
     [Input("filter_graph_group", "value"),
 	Input("filter_graph_by", "value"),
 	Input("filter_graph_weight", "value")])
@@ -243,7 +237,7 @@ def update_datatable(group, value, weight):
 	if value == "Control Time":
 		df[value] = df[value].apply(lambda x: (datetime(1900, 1, 1) + x).strftime('%H:%M:%S'))
 
-	return df[:250].to_dict('records'), columns
+	return df[:250].to_dict('records'), columns, df[::-1][:250].to_dict('records'), columns
 
 @app.callback(
     Output("filter_graph_person", "options"),
