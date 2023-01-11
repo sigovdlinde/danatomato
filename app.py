@@ -111,7 +111,7 @@ app.layout = dbc.Container(
                                         dcc.Dropdown(id="filter_graph_cum", style=style_button, options=cum_options, value='Cumulative'),
                                         dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Fighters'),
                                         dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option'),
-                                        dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['All'], multi=True),
+                                        dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['Tony Ferguson ', 'Khabib Nurmagomedov '], multi=True),
                                         dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', value=['Lightweight'], multi=True),
                                         # dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
                                     ], 
