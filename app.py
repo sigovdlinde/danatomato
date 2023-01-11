@@ -125,14 +125,14 @@ app.layout = dbc.Container(
 					                        	html.Li("Finish Rate = KO/TKOs + Submissions - Decisions."),
 				                        	],
 				                        ),
-				                    ], style={'padding-top': '10px'}
+				                    ], style={'padding-top': '10px', 'padding-bottom': '110px'}
 				                    
 				                ),
                             ],
                             id="column-1",
                             width=2,
                         ),
-                        dbc.Col(dbc.Card(dcc.Graph(id="graph_line", config={"displayModeBar": False}, className="container")), width=7),
+                        dbc.Col(dbc.Card(dcc.Graph(id="graph_line", config={"displayModeBar": False}, className="container"), className="h-100"), width=7),
 						dbc.Col(dbc.Card(dcc.Tabs(
 							[
 							    dcc.Tab(label='Top', children=[dash_table.DataTable(
@@ -189,7 +189,7 @@ app.layout = dbc.Container(
                 	dash_table.DataTable(
                 		id="datatable3",
                 		cell_selectable=False,
-                		style_table={'overflowY': 'scroll', 'height': '450px'},
+                		style_table={'overflowY': 'scroll'},
 				        style_cell={
 				            'border': '0px solid white',
 				            'backgroundColor': 'transparent'
@@ -218,11 +218,7 @@ app.layout = dbc.Container(
 	                    ],
 	                    className="text-center"
 	                ),
-			        style={
-			            "position": "fixed",
-			            "bottom": "0",
-			            "width": "100%",
-			        },
+			        style={'padding-top': '10px'},
                 ),
             ],
             fluid=True,
@@ -231,7 +227,6 @@ app.layout = dbc.Container(
 	    ], 
 	    fluid=True,
 	    className="dbc",
-	    style={'padding-top': '1px'}
 )
 
 
@@ -259,8 +254,13 @@ def update_datatable3(cum, group, name, value, weight):
 		name = all_f_names
 	df = df[df['Name'].isin(name)]
 
-	columns = ["Name", "Date", "Opponent", "Win", "Method", "Significant Strikes", "Attempted Strikes", "Accuracy", 
-				 "Head", "Body", "Leg", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals"]
+	columns = ["Name", "Date", "Opponent", "Win", "Method", "Weight", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
+				 "Submission Attempted", "Significant Strikes", "Attempted Strikes", "Accuracy", 
+				 "Head", "Body", "Leg", "Distance", "Clinch", "Ground"] 
+
+	# columns = ["Name", "Date", "Opponent", "Win", "Method", "Significant Strikes", "Attempted Strikes", "Accuracy", 
+	# 			 "Head", "Body", "Leg", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals"]
+	
 	df["Win"] = df["Win"].replace([0, 1, 2], ["Win", "Loss", "Draw/NC"])
 	df = df[columns]
 	df = df.sort_values('Date').reset_index(drop=True)
