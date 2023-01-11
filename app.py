@@ -125,14 +125,14 @@ app.layout = dbc.Container(
 					                        	html.Li("Finish Rate = KO/TKOs + Submissions - Decisions."),
 				                        	],
 				                        ),
-				                    ], style={'padding-top': '10px', 'padding-bottom': '110px'}
+				                    ], style={'padding-top': '10px'}
 				                    
 				                ),
                             ],
                             id="column-1",
                             width=2,
                         ),
-                        dbc.Col(dbc.Card(dcc.Graph(id="graph_line", config={"displayModeBar": False}, className="container"), className="h-100"), width=7),
+                        dbc.Col(dbc.Card(dcc.Graph(id="graph_line", config={"displayModeBar": False}, className="container")), width=7),
 						dbc.Col(dbc.Card(dcc.Tabs(
 							[
 							    dcc.Tab(label='Top', children=[dash_table.DataTable(
