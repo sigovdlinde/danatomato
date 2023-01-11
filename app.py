@@ -65,9 +65,10 @@ dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.mi
 app = Dash(__name__, external_stylesheets=[dbc.themes.SKETCHY, dbc_css])
 server = app.server
 
-app.title = "Tomato"
+app.title = "Tomato Dashboard"
 
-app.html_layout = """<!DOCTYPE html>
+app.index_string = """
+<!DOCTYPE html>
 <html>
     <head>
 		<!-- Google tag (gtag.js) -->
@@ -79,7 +80,21 @@ app.html_layout = """<!DOCTYPE html>
 
 		  gtag('config', 'G-273RFDY9XD');
 		</script>
-</head>"""
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>
+"""
 
 app.layout = dbc.Container(
     [
@@ -218,6 +233,7 @@ app.layout = dbc.Container(
 	    className="dbc",
 	    style={'padding-top': '1px'}
 )
+
 
 @app.callback(
     Output("datatable3", "data"),
