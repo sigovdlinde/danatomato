@@ -189,7 +189,7 @@ app.layout = dbc.Container(
                 	dash_table.DataTable(
                 		id="datatable3",
                 		cell_selectable=False,
-                		style_table={'overflowY': 'scroll'},
+                		style_table={'overflowY': 'scroll', 'height': '600px'},
 				        style_cell={
 				            'border': '0px solid white',
 				            'backgroundColor': 'transparent'
@@ -260,7 +260,7 @@ def update_datatable3(cum, group, name, value, weight):
 
 	# columns = ["Name", "Date", "Opponent", "Win", "Method", "Significant Strikes", "Attempted Strikes", "Accuracy", 
 	# 			 "Head", "Body", "Leg", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals"]
-	
+
 	df["Win"] = df["Win"].replace([0, 1, 2], ["Win", "Loss", "Draw/NC"])
 	df = df[columns]
 	df = df.sort_values('Date').reset_index(drop=True)
