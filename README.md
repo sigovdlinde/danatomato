@@ -47,6 +47,18 @@ Project includes the following:
 * Files for dash website to produce a MMA stats dashboard.
 * Scraped nested list `all_fight_data` and datasets needed for the website `all_f_data`, `all_f_data_pf`, `all_r_data`.
 
+All_fight_data = [Events] Ordered from old -> new.
+Event = [Fights, Date, Venue]
+    Fight = [Fighter1, Fighter2, Result]
+        Fighter1, Fighter2 = [Name, Total, Strikes]
+            Totals = [Total, First, Second, Third, Fourth, Fifth]
+                Total, First, etc = [Knockdowns, Takedowns, Reversals, Submission Attempted, Control Time]
+                    Takedowns = [Landed, Attempted]
+            Strikes = [Total, First, Second, Third, Fourth, Fifth]
+                Total, First, etc = [Significant Strikes, Head, Body, Leg, Distance, Clinch, Ground]
+                    Everything = [Landed, Attempted]
+        Result = [Winner, Method, Round, Time, Referee, Weight, Bonus, Details]
+
 <!-- GETTING STARTED -->
 ## Getting Started
 
