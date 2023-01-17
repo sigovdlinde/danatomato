@@ -107,13 +107,11 @@ app.layout = dbc.Container(
                             [
                                 html.Div(dbc.Card(
                                     [
-                                        # dcc.Dropdown(id="filter_graph_chart", style=style_button, options=chart_options, placeholder='Select Graph', value='Line'),
                                         dcc.Dropdown(id="filter_graph_cum", style=style_button, options=cum_options, value='Cumulative'),
                                         dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Fighters'),
                                         dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option'),
                                         dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['Tony Ferguson ', 'Khabib Nurmagomedov '], multi=True),
                                         dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', value=['Lightweight'], multi=True),
-                                        # dcc.Dropdown(id="filter_graph_percentage", style=style_button, options=yesno_options, value='No'),
                                     ], 
                                 ),style={'padding-bottom': '15px'}),
 				                dbc.Card(
@@ -317,6 +315,33 @@ def update_line_chart(cum, group, names, value, weight):
 		fig = px.line(df, x="Date", y=value, color="Name")
 		fig.update_traces(line_color='black', line_width=0.7)
 
+	fig.update_layout(
+	    xaxis=dict(
+	        showgrid=False,
+	        showline=True,
+	        linecolor='rgb(102, 102, 102)',
+	        tickcolor='rgb(102, 102, 102)',
+	        showticklabels=True,
+	        tickfont=dict(
+	            size=14,
+	            color='rgb(102, 102, 102)'
+	        ),
+	        zeroline=True,
+	        zerolinecolor='rgb(255,255,255)',
+	        zerolinewidth=2
+	    ),
+	    yaxis=dict(
+	        showgrid=False,
+	        showline=True,
+	        linecolor='rgb(102, 102, 102)',
+	        tickcolor='rgb(102, 102, 102)',
+	        showticklabels=True,
+	        tickfont=dict(
+	            size=14,
+	            color='rgb(102, 102, 102)'
+	        )
+	    )
+	)
 	fig.update_layout(showlegend=False)
 	return fig
 
