@@ -41,28 +41,11 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-### Built With
-
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
+Project includes the following:
+* Python file `scrape_data_nested_list.py` which scrapes all available data from ufcstats.com. 
+* Python file `create_datasets.py` which updates the different sets of datasets needed for the website.
+* Files for dash website to produce a MMA stats dashboard.
+* Scraped nested list `all_fight_data` and datasets needed for the website `all_f_data`, `all_f_data_pf`, `all_r_data`.
 
 <!-- GETTING STARTED -->
 ## Getting Started
