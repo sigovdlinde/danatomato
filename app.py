@@ -29,17 +29,18 @@ weight_options = [{'label': s, 'value': s} for s in weights]
 all_f_names_options = [{'label': s, 'value': s} for s in ['All'] + all_f_names]
 all_r_names_options = [{'label': s, 'value': s} for s in ['All'] + all_r_names]
 
-group_options = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
-chart_options = [{'label': s, 'value': s} for s in ["Line", "Bar"]]
-yesno_options = [{'label': s, 'value': s} for s in ["Yes", "No"]]
-cum_options = [{'label': s, 'value': s} for s in ["Cumulative", "Per Fight"]]
+group_options = [{'label': s, 'value': s} for s in ["Fighters", "Referees", "Fights"]]
+
+cum_options_fighters = [{'label': s, 'value': s} for s in ["Cumulative", "Per Fight"]]
+cum_options_refs = [{'label': s, 'value': s} for s in ["Cumulative"]]
+cum_options_fights = [{'label': s, 'value': s} for s in ["Per Fight"]]
 
 structure_f = ["Name", "Date", "Winlose Score","Finish Score", "Finish Rate", "KO/TKO", "Submission", "Decision", "Wins", "Losses", "Draws/NCs",
 			   "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time", "Weight",
 			   "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", "Distance", "Clinch", "Ground"]
 structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish Rate", "Weight"]
 
-structure_f_pf = ["Name", "Date", "Opponent", "Weight", "Method", "Win", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
+structure_f_pf = ["Name", "Date", "Opponent", "Weight", "Method", "Win", "Details", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
 				 "Submission Attempted", "Control Time", "Significant Strikes", "Attempted Strikes", "Accuracy", 
 				 "Head", "Body", "Leg", "Distance", "Clinch", "Ground"] 
 
@@ -49,8 +50,8 @@ by_fighter = ["Winlose Score","Finish Score", "Finish Rate", "KO/TKO", "Submissi
 by_referee = ["KO/TKO", "Submission", "Decision", "Finish Rate"]
 
 by_fighter_pf = ["Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", 
-						"Control Time", "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", 
-						"Distance", "Clinch", "Ground"] 
+				"Control Time", "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", 
+				"Distance", "Clinch", "Ground"] 
 
 by_f = [{'label': s, 'value': s} for s in by_fighter]
 by_r = [{'label': s, 'value': s} for s in by_referee]
@@ -62,7 +63,7 @@ load_figure_template("sketchy")
 style_button = {'border': 'none', 'display': 'block'}
 
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
-app = Dash(__name__, external_stylesheets=[dbc.themes.SKETCHY, dbc_css])
+app = Dash(__name__, external_stylesheets=[dbc.themes.SKETCHY, dbc_css, "/assets/style.cc"])
 server = app.server
 
 app.title = "Tomato Dashboard"
@@ -107,11 +108,38 @@ app.layout = dbc.Container(
                             [
                                 html.Div(dbc.Card(
                                     [
-                                        dcc.Dropdown(id="filter_graph_cum", style=style_button, options=cum_options, value='Cumulative'),
-                                        dcc.Dropdown(id="filter_graph_group", style=style_button, options=group_options, placeholder='Select Group', value='Fighters'),
-                                        dcc.Dropdown(id="filter_graph_by", style=style_button, placeholder='Select Option'),
-                                        dcc.Dropdown(id="filter_graph_person", style=style_button, placeholder='Select Person(s)', value=['Tony Ferguson ', 'Khabib Nurmagomedov '], multi=True),
-                                        dcc.Dropdown(id="filter_graph_weight", style=style_button, options=weight_options, placeholder='Select Weight', value=['Lightweight'], multi=True),
+                                        dcc.Dropdown(id="filter_graph_group", 
+                                    		style=style_button, 
+                                    		options=group_options, 
+                                    		placeholder='Select Group', 
+                                    		value='Fighters'
+                                    	),
+                                        dcc.Dropdown(id="filter_graph_cum", 
+                                    		style=style_button, 
+                                    		options=cum_options_fighters, 
+                                    		placeholder='Select Chart', 
+                                    		value='Cumulative'
+                                    	),
+                                        dcc.Dropdown(id="filter_graph_by", 
+                                    		style=style_button, 
+                                    		options=by_f ,
+                                    		placeholder='Select Option', 
+                                    		value='Winlose Score'
+                                    	),
+                                        dcc.Dropdown(id="filter_graph_person", 
+                                    		style=style_button, 
+                                    		options=all_f_names_options ,
+                                    		placeholder='Select Person(s)', 
+                                    		value=['Tony Ferguson ', 'Khabib Nurmagomedov '], 
+                                    		multi=True
+                                    	),
+                                        dcc.Dropdown(id="filter_graph_weight", 
+                                        	style=style_button, 
+                                        	options=weight_options, 
+                                        	placeholder='Select Weight', 
+                                        	value=['Lightweight'], 
+                                        	multi=True
+                                        ),
                                     ], 
                                 ),style={'padding-bottom': '15px'}),
 				                dbc.Card(
@@ -194,15 +222,11 @@ app.layout = dbc.Container(
 				        },
 				        style_cell_conditional=[
 						    {
-						        'textAlign': 'center'
+						        'textAlign': 'left'
 						    },
 				            {
-				                'if': {'column_id': 'Name'},
-				                'textAlign': 'left',
-				            },
-				            {
-				                'if': {'column_id': 'Date'},
-				                'textAlign': 'left',
+				                'if': {'column_id': 'Details'},
+				                'padding-left': '50px'
 				            },
 				        ],
                 		style_as_list_view=True,
@@ -252,12 +276,7 @@ def update_datatable3(cum, group, name, value, weight):
 		name = all_f_names
 	df = df[df['Name'].isin(name)]
 
-	columns = ["Name", "Date", "Opponent", "Win", "Method", "Weight", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
-				 "Submission Attempted", "Significant Strikes", "Attempted Strikes", "Accuracy", 
-				 "Head", "Body", "Leg", "Distance", "Clinch", "Ground"] 
-
-	# columns = ["Name", "Date", "Opponent", "Win", "Method", "Significant Strikes", "Attempted Strikes", "Accuracy", 
-	# 			 "Head", "Body", "Leg", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals"]
+	columns = ["Name", "Date", "Opponent", "Win", "Method", "Weight", "Details"] 
 
 	df["Win"] = df["Win"].replace([0, 1, 2], ["Win", "Loss", "Draw/NC"])
 	df = df[columns]
@@ -391,73 +410,81 @@ def update_datatable(cum, group, value, weight):
 	return df[:250].to_dict('records'), columns, df[::-1][:250].to_dict('records'), columns
 
 @app.callback(
-    Output("filter_graph_group", "disabled"),
-    Output("filter_graph_group", "value"),
-    [Input("filter_graph_cum", "value")])
-def update_filter_graph_group(cum):
-	if cum == 'Per Fight':
-		disabled = True
-	else:
-		disabled = False
+	Output("filter_graph_cum", "options"),
+    Output("filter_graph_cum", "value"),
+    [Input("filter_graph_group", "value")])
+def update_filter_graph_cum(group):
+	if group == 'Fighters':
+		cum_options = cum_options_fighters
+		cum_value = "Cumulative"
+
+	elif group == 'Referees':
+		cum_options = cum_options_refs
+		cum_value = "Cumulative"
+
+	elif group == 'Fights':
+		cum_options = cum_options_fights
+		cum_value = "Per Fight"
 	
-	value = "Fighters"
-	return disabled, value
-
-@app.callback(
-    Output("filter_graph_person", "options"),
-    Output("filter_graph_person", "value"),
-    [Input("filter_graph_group", "value"),
-    Input("filter_graph_person", "value")])
-def update_filter_graph_person(value, name):
-	if value == "Fighters":
-		names = all_f_names_options
-		name_check = all_f_names
-	else:
-		names = all_r_names_options
-		name_check = all_r_names
-
-	name_list = []
-	for n in name:
-		if n in ['All'] + name_check:
-			name_list.append(name)
-
-	return names, name
+	return cum_options, cum_value
 
 @app.callback(
     Output("filter_graph_by", "options"),
     Output("filter_graph_by", "value"),
-    [Input("filter_graph_cum", "value"),
-    Input("filter_graph_group", "value"),
-    Input("filter_graph_by", "value")])
-def update_filter_graph_by(cum, value, by_value):
-	if value == "Fighters":
-		if cum == 'Per Fight':
-			structure = structure_f_pf
-			by = by_f_pf
-		else:
-			structure = structure_f
-			by = by_f
-	else:
-		structure = structure_r
-		by = by_r
+    [Input("filter_graph_group", "value"),
+    Input("filter_graph_cum", "value")])
+def update_filter_graph_by(group, cum):
+	if group == 'Fighters':
+		if cum == 'Cumulative':
+			by_options = by_f
+			by_value = 'Winlose Score'
 
-	if by_value not in structure:
-		by_value = "KO/TKO"
+		elif cum == 'Per Fight':
+			by_options = by_f_pf
+			by_value = 'Significant Strikes'
 
-	return by, by_value
+	elif group == 'Referees':
+		by_options = by_r
+		by_value = 'Finish Rate'
+
+	# temp options & value
+	elif group == 'Fights':
+		by_options = by_f_pf
+		by_value = 'Significant Scrikes'
+
+	return by_options, by_value
+
 
 @app.callback(
-    Output("filter_graph_weight", "disabled"),
-    Output("filter_graph_weight", "value"),
+    Output("filter_graph_person", "options"),
+    Output("filter_graph_person", "value"),
     [Input("filter_graph_group", "value")])
-def update_filter_graph_group(group):
-	if group == 'Referees':
-		disabled = True
-	else:
-		disabled = False
-	
-	value = []
-	return disabled, value
+def update_filter_graph_person(group):
+	if group in ['Fighters', 'Fights']:
+		person_options = all_f_names_options
+		person_value = ['Tony Ferguson ', 'Khabib Nurmagomedov ']
+
+	elif group == 'Referees':
+		person_options = all_r_names_options
+		person_value = ['Herb Dean', 'Keith Peterson']
+
+	return person_options, person_value
+
+@app.callback(
+    Output("filter_graph_weight", "style"),
+    [Input("filter_graph_group", "value")])
+def update_filter_graph_weight(group):
+	if group in ['Fighters', 'Fights']:
+		weight_style = style_button
+
+	elif group == 'Referees':
+		weight_style = {"display":"none"}
+
+	return weight_style
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
+
+
+

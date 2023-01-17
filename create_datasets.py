@@ -224,6 +224,8 @@ def fighter_data_per_fight(data, name):
                 else:
                     general_info.append(1)
                 
+                # Details
+                general_info.append(fight[2][7].replace('.', '  '))
                 
                 data = [name, convert_date(event[1])] + general_info + other + strikes
                 all_data.append(data)
