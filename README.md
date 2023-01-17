@@ -42,8 +42,8 @@
 ## About The Project
 
 Project includes the following:
-* Python file `scrape_data_nested_list.py` which scrapes all available data from ufcstats.com. 
-* Python file `create_datasets.py` which updates the different sets of datasets needed for the website.
+* Python file `scrape_data_nested_list.py` which scrapes all available data from ufcstats.com and updates datasets. 
+* Python file `create_datasets.py` which provides the different functions needed for the datasets.
 * Files for dash website to produce a MMA stats dashboard.
 * Scraped nested list `all_fight_data` and datasets needed for the website `all_f_data`, `all_f_data_pf`, `all_r_data`.
 
@@ -62,11 +62,13 @@ Structure of the scraped list (Should've just made it a dataframe...)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+
+
 <!-- GETTING STARTED -->
 ## Getting Started
 
-### Prerequisites
-* npm
+### Pip packages
+
   ```sh
   pip install dash
   pip install plotly
@@ -76,22 +78,6 @@ Structure of the scraped list (Should've just made it a dataframe...)
   pip install bs4
   ```
 
-### Installation
-
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/github_username/repo_name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -99,9 +85,11 @@ Structure of the scraped list (Should've just made it a dataframe...)
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+1. Run `python scrape_data_nested_list.py` to create or update current data.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+2. Run `python app.py` to start website locally.
+
+3. Go to `http://localhost:8050/` to view website.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -110,12 +98,18 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
-
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+- [ ] Update scraper.
+	- [ ] Create betting odds scraper.
+	- [ ] Create scraper for fights outside the UFC.
+	- [ ] Create scraper for judge data per round (Currently only final score available if decision.)
+	- [ ] Transform scraper into dataframe instead of nested list.
+- [ ] Update center graph.
+	- [ ] Add option for group: Fights.
+	- [ ] Add option for group: Judges.
+	- [ ] Add average line.
+	- [ ] Add colors for dots when 'All' is selected + certain fighters.
+- [ ] Add different kinds of graphs from 'https://plotly.com/python/'.
+- [ ] Create predictions graph/table.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
