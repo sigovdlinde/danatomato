@@ -7,13 +7,7 @@ from urllib3.util.retry import Retry
 
 from bs4 import BeautifulSoup
 
-def open_data(name):
-    with open(name, "rb") as fp:
-        return pickle.load(fp)
-
-def save_data(data, name):
-    with open(name, "wb") as fp:
-        pickle.dump(data, fp)
+from create_datasets import *
 
 def get_soup(url):
     session = requests.Session()
@@ -173,15 +167,30 @@ def get_all_fight_data(number_of_new_events, all_fight_data = []):
 	return all_fight_data
 
 if __name__ == '__main__':
-	previous_data = open_data('all_fight_data')
-	number_of_new_events = (len(get_event_urls()) - len(previous_data))
+    previous_data = open_data('all_fight_data')
+    number_of_new_events = (len(get_event_urls()) - len(previous_data))
 
-	print('Number of new events: ', number_of_new_events)
+    print('Number of new events: ', number_of_new_events)
 
-	if number_of_new_events > 0:
-		get_all_fight_data(number_of_new_events, previous_data)
-	else:
-		print('Data is up-to-date.')
+    if number_of_new_events > 0:
+        all_fight_data = get_all_fight_data(number_of_new_events, previous_data)
+
+        all_f_names = all_fighter_names(all_fight_data)
+        all_f_data = [fighter_data(all_fight_data, name) for name in all_f_names]
+        all_f_data = [item for sublist in all_f_data for item in sublist]
+
+        all_r_names = all_referee_names(all_fight_data)
+        all_r_data = [referee_data(all_fight_data, name) for name in all_r_names]
+        all_r_data = [item for sublist in all_r_data for item in sublist]
+
+        all_f_data_per_fight = [fighter_data_per_fight(all_fight_data, name) for name in all_f_names]
+        all_f_data_per_fight = [item for sublist in all_f_data_per_fight for item in sublist]
+
+        save_data(all_f_data, 'all_f_data')
+        save_data(all_f_data_per_fight, 'all_f_data_pf')
+        save_data(all_r_data, 'all_r_data')
+    else:
+        print('Data is up-to-date.')
 
 
 
