@@ -1,5 +1,5 @@
 venv
 *.pyc
 .DS_Store
-www_danatomato_com.cer
-www_danatomato_com.key
+ufc_data.ipynb
+ufcstats_scraper.ipynb
