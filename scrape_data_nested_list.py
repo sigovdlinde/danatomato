@@ -31,7 +31,7 @@ def get_event_urls():
 
 def get_fight_urls_from_event(soup):
     url_list = []
-    for fight in soup.find_all('a', {'b-flag b-flag_style_green'}):
+    for fight in (soup.find_all('a', {'b-flag b-flag_style_bordered'})[::2] + soup.find_all('a', {'b-flag b-flag_style_green'})):
         fight_url = fight.get('href')
         url_list.append(fight_url)
     return url_list
@@ -133,8 +133,8 @@ def get_fight_data(soup):
 
     return data
 
-def get_all_fight_data(number_of_new_events, all_fight_data = []):
-	event_urls = [get_event_urls()[:number_of_new_events]]
+def get_all_fight_data(all_fight_data = []):
+	event_urls = get_event_urls()[::-1][len(all_fight_data):]
 
 	for event_url in event_urls:
 	    event_data = []
@@ -168,29 +168,25 @@ def get_all_fight_data(number_of_new_events, all_fight_data = []):
 
 if __name__ == '__main__':
     previous_data = open_data('all_fight_data')
-    number_of_new_events = (len(get_event_urls()) - len(previous_data))
 
-    print('Number of new events: ', number_of_new_events)
+    all_fight_data = get_all_fight_data(previous_data)
 
-    if number_of_new_events > 0:
-        all_fight_data = get_all_fight_data(number_of_new_events, previous_data)
+    all_f_names = all_fighter_names(all_fight_data)
+    all_f_data = [fighter_data(all_fight_data, name) for name in all_f_names]
+    all_f_data = [item for sublist in all_f_data for item in sublist]
 
-        all_f_names = all_fighter_names(all_fight_data)
-        all_f_data = [fighter_data(all_fight_data, name) for name in all_f_names]
-        all_f_data = [item for sublist in all_f_data for item in sublist]
+    all_r_names = all_referee_names(all_fight_data)
+    all_r_data = [referee_data(all_fight_data, name) for name in all_r_names]
+    all_r_data = [item for sublist in all_r_data for item in sublist]
 
-        all_r_names = all_referee_names(all_fight_data)
-        all_r_data = [referee_data(all_fight_data, name) for name in all_r_names]
-        all_r_data = [item for sublist in all_r_data for item in sublist]
+    all_f_data_per_fight = [fighter_data_per_fight(all_fight_data, name) for name in all_f_names]
+    all_f_data_per_fight = [item for sublist in all_f_data_per_fight for item in sublist]
 
-        all_f_data_per_fight = [fighter_data_per_fight(all_fight_data, name) for name in all_f_names]
-        all_f_data_per_fight = [item for sublist in all_f_data_per_fight for item in sublist]
-
-        save_data(all_f_data, 'all_f_data')
-        save_data(all_f_data_per_fight, 'all_f_data_pf')
-        save_data(all_r_data, 'all_r_data')
-    else:
-        print('Data is up-to-date.')
+    save_data(all_f_data, 'all_f_data')
+    save_data(all_f_data_per_fight, 'all_f_data_pf')
+    save_data(all_r_data, 'all_r_data')
+        
+    print('Data is up-to-date.')
 
 
 

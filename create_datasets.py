@@ -85,7 +85,7 @@ def fighter_data(data, name):
 
                     count[9] += total[0]
                     count[10] += total[1][0]
-                    count[11] += total[1][0]
+                    count[11] += total[1][1]
                     count[12] += total[2]
                     count[13] += total[3]
                     
@@ -148,11 +148,11 @@ def fighter_data(data, name):
 
 def fighter_data_per_fight(data, name):
 # win = 0 for win, 1 for loss, 2 for other.
-# ["Name", "Date", "Opponent", "Weight", "Win", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
+# ["Name", "Date", "Venue", "Opponent", "Weight", "Method", "Win", "Details", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
 #  "Submission Attempted", "Control Time", "Significant Strikes", "Attempted Strikes", "Accuracy", 
-#  "Head", "Body", "Leg", "Distance", "Clinch", "Ground"]
+#  "Head", "Body", "Leg", "Distance", "Clinch", "Ground"] 
     all_data = []
-    # Opponent", "Weight", "Method", "Win"
+    # "Venue", "Opponent", "Weight", "Method", "Win", "Details"
     general_info = []
     # "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", "Submission Attempted", "Control Time"
     other = []
@@ -169,6 +169,7 @@ def fighter_data_per_fight(data, name):
             other = []
             strikes = []
             if name in fighters:
+                general_info.append(event[2])
                 index = fighters.index(name)
                 fighters.remove(name)
                 
@@ -178,6 +179,9 @@ def fighter_data_per_fight(data, name):
                     if w in fight[2][5]:
                         general_info.append(w)
                         break
+                        
+                if len(general_info) != 3:
+                    general_info.append('Unspecified')
                 
                 
                 if fight[index][1] != []:
@@ -193,9 +197,6 @@ def fighter_data_per_fight(data, name):
                         time = datetime.strptime('00:00', '%M:%S').time()
                     
                     delta = timedelta(minutes=time.minute, seconds=time.second)
-                    
-                    if delta == None:
-                        print(name, delta)
                     
                     other.append(delta)
                     
@@ -216,6 +217,9 @@ def fighter_data_per_fight(data, name):
                     strikes.append(strike_list[12])
                     
                     general_info.append(fight[2][1])
+                
+                else:
+                    general_info.append(' ')
   
                 if fight[winner][0] == name:
                     general_info.append(0)
@@ -228,9 +232,13 @@ def fighter_data_per_fight(data, name):
                 general_info.append(fight[2][7].replace('.', '  '))
                 
                 data = [name, convert_date(event[1])] + general_info + other + strikes
+                if len(data) != 23:
+                    other = [0, 0, 0, 0, 0, datetime.strptime('00:00', '%M:%S').time()]
+                    strikes = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    data = data + other + strikes
+                    
                 all_data.append(data)
                 
-    
     return all_data
 
 def referee_data(data, name):

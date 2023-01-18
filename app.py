@@ -29,7 +29,7 @@ weight_options = [{'label': s, 'value': s} for s in weights]
 all_f_names_options = [{'label': s, 'value': s} for s in ['All'] + all_f_names]
 all_r_names_options = [{'label': s, 'value': s} for s in ['All'] + all_r_names]
 
-group_options = [{'label': s, 'value': s} for s in ["Fighters", "Referees", "Fights"]]
+group_options = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
 
 cum_options_fighters = [{'label': s, 'value': s} for s in ["Cumulative", "Per Fight"]]
 cum_options_refs = [{'label': s, 'value': s} for s in ["Cumulative"]]
@@ -40,7 +40,7 @@ structure_f = ["Name", "Date", "Winlose Score","Finish Score", "Finish Rate", "K
 			   "Significant Strikes", "Attempted Strikes", "Accuracy", "Head", "Body", "Leg", "Distance", "Clinch", "Ground"]
 structure_r = ["Name", "Date", "KO/TKO", "Submission", "Decision", "Finish Rate", "Weight"]
 
-structure_f_pf = ["Name", "Date", "Opponent", "Weight", "Method", "Win", "Details", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
+structure_f_pf = ["Name", "Date", "Venue", "Opponent", "Weight", "Method", "Win", "Details", "Knockdowns", "Takedowns Landed", "Takedowns Attempted", "Reversals", 
 				 "Submission Attempted", "Control Time", "Significant Strikes", "Attempted Strikes", "Accuracy", 
 				 "Head", "Body", "Leg", "Distance", "Clinch", "Ground"] 
 
@@ -66,7 +66,7 @@ dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.mi
 app = Dash(__name__, external_stylesheets=[dbc.themes.SKETCHY, dbc_css, "/assets/style.cc"])
 server = app.server
 
-app.title = "Tomato Dashboard"
+app.title = "MMA Dashboard"
 
 app.index_string = """
 <!DOCTYPE html>
@@ -139,7 +139,7 @@ app.layout = dbc.Container(
                                         	placeholder='Select Weight', 
                                         	value=['Lightweight'], 
                                         	multi=True
-                                        ),
+                                        ), 
                                     ], 
                                 ),style={'padding-bottom': '15px'}),
 				                dbc.Card(
