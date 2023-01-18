@@ -158,7 +158,7 @@ app.layout = dbc.Container(
                             id="column-1",
                             width=2,
                         ),
-                        dbc.Col(dbc.Card(dcc.Graph(id="graph_line", config={"displayModeBar": False}, className="container")), width=7),
+                        dbc.Col(dbc.Card(dcc.Graph(id="graph_line", config={"displayModeBar": False}), className="border-0"), width=7),
 						dbc.Col(dbc.Card(dcc.Tabs(
 							[
 							    dcc.Tab(label='Top', children=[dash_table.DataTable(
@@ -207,10 +207,39 @@ app.layout = dbc.Container(
 						    ], style={'height': '50px'}
 						    )),
 						    width=3,
-						    className="dbc dbc-row-selectable"
 						),
                     ]
                 ),
+				# dbc.Row(
+				# 	[
+				# 		dbc.Col(dbc.Card(
+				# 			[
+				# 				dcc.RangeSlider(value=[5, 15], id='my-range-slider'),
+				# 				dash_table.DataTable(
+				# 					        id="datatable4",
+				# 					        cell_selectable=False,
+				# 					        style_table={'overflowY': 'scroll', 'height': '450px'},
+				# 					        style_cell={
+				# 					            'border': '0px solid white',
+				# 					            'backgroundColor': 'transparent'
+				# 					        },
+				# 					        style_cell_conditional=[
+				# 							    {
+				# 							        'textAlign': 'center'
+				# 							    },
+				# 					            {
+				# 					                'if': {'column_id': 'Name'},
+				# 					                'textAlign': 'left',
+				# 					                'padding-left': '30px'
+				# 					            },
+				# 					        ],
+				# 					        style_as_list_view=True,
+				# 					    )
+				# 			]), width=3
+				# 		),
+				# 		dbc.Col(dcc.Graph(id="graph_map", config={"displayModeBar": False}, className="container"), width=8),
+				# 	]
+				# ),
                 dbc.Row(dbc.Card(
                 	dash_table.DataTable(
                 		id="datatable3",
@@ -251,6 +280,62 @@ app.layout = dbc.Container(
 	    className="dbc",
 )
 
+
+@app.callback(
+    Output("graph_map", "figure"), 
+    Input("filter_graph_group", "value"))
+def display_map(group):
+	all_data = []
+
+	for event in all_fight_data:
+	    all_data.append([event[1], event[2]])
+
+	df = pd.DataFrame(all_data, columns=["Date", "Location"])
+
+	# extract the country name
+	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
+
+	# group the dataframe by country and count the occurrences
+	df = df.groupby('Country').size().reset_index(name='Count')
+
+	# df = df[df.Country != 'USA']
+
+
+	fig = px.choropleth(data_frame=df, locations='Country', locationmode='country names',
+	                    color='Count',
+	                    color_continuous_scale="Reds",
+	                    projection="natural earth")
+	
+	fig.update_layout(showlegend=False)
+	return fig
+
+@app.callback(
+    Output("datatable4", "data"),
+    Output("datatable4", "columns"),
+    Input("filter_graph_group", "value"))
+def update_datatable4(group):
+	all_data = []
+
+	for event in all_fight_data:
+	    all_data.append([event[1], event[2]])
+
+	df = pd.DataFrame(all_data, columns=["Date", "Location"])
+
+	# extract the country name
+	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
+
+	# group the dataframe by country and count the occurrences
+	df = df.groupby('Country').size().reset_index(name='Count')
+
+	# df = df[df.Country != 'USA']
+
+	df = df.sort_values('Count', ascending=False).reset_index(drop=True)
+	df.index += 1
+	df = df.reset_index(level=0)
+	df.columns = ["#", "Country", 'Count']
+	columns =  [{"name": i, "id": i,} for i in (df.columns)]
+
+	return df.to_dict('records'), columns
 
 @app.callback(
     Output("datatable3", "data"),
