@@ -29,6 +29,7 @@ weight_options = [{'label': s, 'value': s} for s in weights]
 all_f_names_options = [{'label': s, 'value': s} for s in ['All'] + all_f_names]
 all_r_names_options = [{'label': s, 'value': s} for s in ['All'] + all_r_names]
 
+graph_options = [{'label': s, 'value': s} for s in ["Graph", "Map"]]
 group_options = [{'label': s, 'value': s} for s in ["Fighters", "Referees"]]
 
 cum_options_fighters = [{'label': s, 'value': s} for s in ["Cumulative", "Per Fight"]]
@@ -57,6 +58,8 @@ by_f = [{'label': s, 'value': s} for s in by_fighter]
 by_r = [{'label': s, 'value': s} for s in by_referee]
 
 by_f_pf = [{'label': s, 'value': s} for s in by_fighter_pf]
+
+by_options = [{'label': s, 'value': s} for s in ["Number Of Events"]]
 
 load_figure_template("solar")
 
@@ -108,6 +111,12 @@ app.layout = dbc.Container(
                             [
                                 html.Div(dbc.Card(
                                     [
+                                        dcc.Dropdown(id="filter_graph_map", 
+                                    		style=style_button, 
+                                    		options=graph_options, 
+                                    		placeholder='Select Type', 
+                                    		value='Graph'
+                                    	),
                                         dcc.Dropdown(id="filter_graph_group", 
                                     		style=style_button, 
                                     		options=group_options, 
@@ -139,7 +148,22 @@ app.layout = dbc.Container(
                                         	placeholder='Select Weight', 
                                         	value=['Lightweight'], 
                                         	multi=True
-                                        ), 
+                                        ),
+
+                                        dcc.Dropdown(id="filter_map_by", 
+                                    		style=style_button, 
+                                    		options=by_options, 
+                                    		placeholder='Select Option', 
+                                    		value='Number Of Events'
+                                    	),
+										html.Div(dcc.RangeSlider(
+										    id='date-slider',
+										    min=1993,
+										    max=2023,
+										    value=[1993, 2023],
+										    step=1,
+										    updatemode='drag'
+										), style={'padding-top': '15px', "display":"none"})
                                     ], 
                                 ),style={'padding-bottom': '15px'}),
 				                dbc.Card(
@@ -153,93 +177,88 @@ app.layout = dbc.Container(
 				                        ),
 				                    ], style={'padding-top': '10px'}
 				                    
-				                ),
+				                ,id="graph_explanation"),
                             ],
                             id="column-1",
                             width=2,
                         ),
-                        dbc.Col(dbc.Card(dcc.Graph(id="graph_line", config={"displayModeBar": False}), className="border-0"), width=7),
-						dbc.Col(dbc.Card(dcc.Tabs(
+                        dbc.Col([dcc.Graph(id="graph_line", config={"displayModeBar": False}),
+                        		dcc.Graph(id="graph_map", config={"displayModeBar": False})],
+                        	width=7),
+						dbc.Col(
 							[
-							    dcc.Tab(label='Top', children=[dash_table.DataTable(
-								        id="datatable1",
-								        cell_selectable=False,
-								        style_table={'overflowY': 'scroll', 'height': '450px'},
-								        style_cell={
-								            'border': '0px solid white',
-								            'backgroundColor': 'transparent'
-								        },
-								        style_cell_conditional=[
-										    {
-										        'textAlign': 'center'
-										    },
-								            {
-								                'if': {'column_id': 'Name'},
-								                'textAlign': 'left',
-								                'padding-left': '30px'
-								            },
-								        ],
-								        style_as_list_view=True,
-								    )
-							    ]),
-							    dcc.Tab(label='Bottom', children=[dash_table.DataTable(
-								        id="datatable2",
-								        cell_selectable=False,
-								        style_table={'overflowY': 'scroll', 'height': '450px'},
-								        style_cell={
-								            'border': '0px solid white',
-								            'backgroundColor': 'transparent'
-								        },
-								        style_cell_conditional=[
-										    {
-										        'textAlign': 'center'
-										    },
-								            {
-								                'if': {'column_id': 'Name'},
-								                'textAlign': 'left',
-								                'padding-left': '30px'
-								            },
-								        ],
-								        style_as_list_view=True,
-								    )
-							    ]),
+								dbc.Card(dcc.Tabs(
+								[
+								    dcc.Tab(label='Top', children=[dash_table.DataTable(
+									        id="datatable1",
+									        cell_selectable=False,
+									        style_table={'overflowY': 'scroll', 'height': '400px'},
+									        style_cell={
+									            'border': '0px solid white',
+									            'backgroundColor': 'transparent'
+									        },
+									        style_cell_conditional=[
+											    {
+											        'textAlign': 'center'
+											    },
+									            {
+									                'if': {'column_id': 'Name'},
+									                'textAlign': 'left',
+									                'padding-left': '30px'
+									            },
+									        ],
+									        style_as_list_view=True,
+									    )
+								    ]),
+								    dcc.Tab(label='Bottom', children=[dash_table.DataTable(
+									        id="datatable2",
+									        cell_selectable=False,
+									        style_table={'overflowY': 'scroll', 'height': '400px'},
+									        style_cell={
+									            'border': '0px solid white',
+									            'backgroundColor': 'transparent'
+									        },
+									        style_cell_conditional=[
+											    {
+											        'textAlign': 'center'
+											    },
+									            {
+									                'if': {'column_id': 'Name'},
+									                'textAlign': 'left',
+									                'padding-left': '30px'
+									            },
+									        ],
+									        style_as_list_view=True,
+									    )
+								    ]),
 
-						    ], style={'height': '50px'}
-						    )),
+							    ], style={'height': '50px'}
+							    )),
+							    dbc.Card(dash_table.DataTable(
+								        id="datatable4",
+								        cell_selectable=False,
+								        style_table={'overflowY': 'scroll', 'height': '400px'},
+								        style_cell={
+								            'border': '0px solid white',
+								            'backgroundColor': 'transparent'
+								        },
+								        style_cell_conditional=[
+										    {
+										        'textAlign': 'center'
+										    },
+								            {
+								                'if': {'column_id': 'Name'},
+								                'textAlign': 'left',
+								                'padding-left': '30px'
+								            },
+								        ],
+								        style_as_list_view=True,
+								    ), style = {"display":"none"}),
+						    ],
 						    width=3,
 						),
                     ]
                 ),
-				# dbc.Row(
-				# 	[
-				# 		dbc.Col(dbc.Card(
-				# 			[
-				# 				dcc.RangeSlider(value=[5, 15], id='my-range-slider'),
-				# 				dash_table.DataTable(
-				# 					        id="datatable4",
-				# 					        cell_selectable=False,
-				# 					        style_table={'overflowY': 'scroll', 'height': '450px'},
-				# 					        style_cell={
-				# 					            'border': '0px solid white',
-				# 					            'backgroundColor': 'transparent'
-				# 					        },
-				# 					        style_cell_conditional=[
-				# 							    {
-				# 							        'textAlign': 'center'
-				# 							    },
-				# 					            {
-				# 					                'if': {'column_id': 'Name'},
-				# 					                'textAlign': 'left',
-				# 					                'padding-left': '30px'
-				# 					            },
-				# 					        ],
-				# 					        style_as_list_view=True,
-				# 					    )
-				# 			]), width=3
-				# 		),
-				# 		dbc.Col(dcc.Graph(id="graph_map", config={"displayModeBar": False}, className="container"), width=8),
-				# 	]
-				# ),
                 dbc.Row(dbc.Card(
                 	dash_table.DataTable(
                 		id="datatable3",
@@ -281,61 +300,57 @@ app.layout = dbc.Container(
 )
 
 
-# @app.callback(
-#     Output("graph_map", "figure"), 
-#     Input("filter_graph_group", "value"))
-# def display_map(group):
-# 	all_data = []
+@app.callback(
+    Output("graph_map", "figure"), 
+    [Input("filter_graph_group", "value"),
+    Input("date-slider", "value")])
+def update_map(group, date_value):
+	all_data = []
 
-# 	for event in all_fight_data:
-# 	    all_data.append([event[1], event[2]])
+	for event in all_fight_data:
+	    all_data.append([event[1], event[2]])
 
-# 	df = pd.DataFrame(all_data, columns=["Date", "Location"])
+	df = pd.DataFrame(all_data, columns=["Date", "Location"])
 
-# 	# extract the country name
-# 	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
+	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
+	df = df.groupby('Country').size().reset_index(name='Count')
 
-# 	# group the dataframe by country and count the occurrences
-# 	df = df.groupby('Country').size().reset_index(name='Count')
+	# df = df[df.Country != 'USA']
 
-# 	# df = df[df.Country != 'USA']
-
-
-# 	fig = px.choropleth(data_frame=df, locations='Country', locationmode='country names',
-# 	                    color='Count',
-# 	                    color_continuous_scale="Reds",
-# 	                    projection="natural earth")
+	fig = px.choropleth(data_frame=df, locations='Country', locationmode='country names',
+	                    color='Count',
+	                    projection="natural earth")
 	
-# 	fig.update_layout(showlegend=False)
-# 	return fig
+	fig.update_layout(showlegend=False)
+	return fig
 
-# @app.callback(
-#     Output("datatable4", "data"),
-#     Output("datatable4", "columns"),
-#     Input("filter_graph_group", "value"))
-# def update_datatable4(group):
-# 	all_data = []
+@app.callback(
+    Output("datatable4", "data"),
+    Output("datatable4", "columns"),
+    Input("filter_graph_group", "value"))
+def update_datatable4(group):
+	all_data = []
 
-# 	for event in all_fight_data:
-# 	    all_data.append([event[1], event[2]])
+	for event in all_fight_data:
+	    all_data.append([event[1], event[2]])
 
-# 	df = pd.DataFrame(all_data, columns=["Date", "Location"])
+	df = pd.DataFrame(all_data, columns=["Date", "Location"])
 
-# 	# extract the country name
-# 	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
+	# extract the country name
+	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
 
-# 	# group the dataframe by country and count the occurrences
-# 	df = df.groupby('Country').size().reset_index(name='Count')
+	# group the dataframe by country and count the occurrences
+	df = df.groupby('Country').size().reset_index(name='Count')
 
-# 	# df = df[df.Country != 'USA']
+	# df = df[df.Country != 'USA']
 
-# 	df = df.sort_values('Count', ascending=False).reset_index(drop=True)
-# 	df.index += 1
-# 	df = df.reset_index(level=0)
-# 	df.columns = ["#", "Country", 'Count']
-# 	columns =  [{"name": i, "id": i,} for i in (df.columns)]
+	df = df.sort_values('Count', ascending=False).reset_index(drop=True)
+	df.index += 1
+	df = df.reset_index(level=0)
+	df.columns = ["#", "Country", 'Count']
+	columns =  [{"name": i, "id": i,} for i in (df.columns)]
 
-# 	return df.to_dict('records'), columns
+	return df.to_dict('records'), columns
 
 @app.callback(
     Output("datatable3", "data"),
@@ -380,7 +395,7 @@ def update_datatable3(cum, group, name, value, weight):
     Input("filter_graph_person", "value"),
 	Input("filter_graph_by", "value"),
 	Input("filter_graph_weight", "value")])
-def update_line_chart(cum, group, names, value, weight):
+def update_chart(cum, group, names, value, weight):
 	if group == "Fighters":
 		if 'All' in names:
 			names = all_f_names
@@ -416,7 +431,7 @@ def update_line_chart(cum, group, names, value, weight):
 		fig.update_traces(marker=dict(size=4, color='white'))
 	else:
 		fig = px.line(df, x="Date", y=value, color="Name")
-		fig.update_traces(line_color='white', line_width=0.7)
+		fig.update_traces(line_color='#869396', line_width=0.7)
 
 	fig.update_layout(showlegend=False)
 	return fig
@@ -467,6 +482,67 @@ def update_datatable(cum, group, value, weight):
 	return df[:250].to_dict('records'), columns, df[::-1][:250].to_dict('records'), columns
 
 @app.callback(
+	Output("graph_line", "style"),
+	Output("graph_map", "style"),
+	# Output("datatable1", "style"),
+	# Output("datatable2", "style"),
+	# Output("datatable4", "style"),
+    [Input("filter_graph_map", "value")])
+def update_filter_graph(graph_type):
+	if graph_type == "Graph":
+		line_style = {}
+		map_style = {"display":"none"} 
+		# datatable1_style = {}
+		# datatable2_style = {}
+		# datatable4_style = {"display":"none"} 
+	elif graph_type == "Map":
+		line_style = {"display":"none"}
+		map_style = {}
+		# datatable1_style = {"display":"none"}
+		# datatable2_style = {"display":"none"} 
+		# datatable4_style = {}
+	
+	return line_style, map_style
+
+@app.callback(
+	Output("filter_graph_group", "style"),
+	Output("filter_graph_cum", "style"),
+	Output("filter_graph_by", "style"),
+	Output("filter_graph_person", "style"),
+	Output("filter_graph_weight", "style"),
+	Output("graph_explanation", "style"),
+	Output("filter_map_by", "style"),
+    [Input("filter_graph_map", "value"),
+    Input("filter_graph_group", "value")])
+def update_filter_buttons(graph_type, group):
+	if graph_type == "Graph":
+		group_style = style_button
+		cum_style = style_button
+		by_style = style_button
+		person_style = style_button
+
+		if group == 'Fighters':
+			weight_style = style_button
+
+		elif group == 'Referees':
+			weight_style = {"display":"none"}
+
+		explanation_style = {}
+		map_by_style = {"display":"none"}
+
+	elif graph_type == "Map":
+		group_style = {"display":"none"}
+		cum_style = {"display":"none"}
+		by_style = {"display":"none"}
+		person_style = {"display":"none"}
+		weight_style = {"display":"none"}
+		explanation_style = {"display":"none"}
+		map_by_style = {}
+
+	
+	return group_style, cum_style, by_style, person_style, weight_style, explanation_style, map_by_style
+
+@app.callback(
 	Output("filter_graph_cum", "options"),
     Output("filter_graph_cum", "value"),
     [Input("filter_graph_group", "value")])
@@ -511,7 +587,6 @@ def update_filter_graph_by(group, cum):
 
 	return by_options, by_value
 
-
 @app.callback(
     Output("filter_graph_person", "options"),
     Output("filter_graph_person", "value"),
@@ -526,18 +601,6 @@ def update_filter_graph_person(group):
 		person_value = ['Herb Dean', 'Keith Peterson']
 
 	return person_options, person_value
-
-@app.callback(
-    Output("filter_graph_weight", "style"),
-    [Input("filter_graph_group", "value")])
-def update_filter_graph_weight(group):
-	if group in ['Fighters', 'Fights']:
-		weight_style = style_button
-
-	elif group == 'Referees':
-		weight_style = {"display":"none"}
-
-	return weight_style
 
 
 if __name__ == "__main__":
