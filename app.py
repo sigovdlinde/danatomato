@@ -58,12 +58,12 @@ by_r = [{'label': s, 'value': s} for s in by_referee]
 
 by_f_pf = [{'label': s, 'value': s} for s in by_fighter_pf]
 
-load_figure_template("sketchy")
+load_figure_template("solar")
 
 style_button = {'border': 'none', 'display': 'block'}
 
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
-app = Dash(__name__, external_stylesheets=[dbc.themes.SKETCHY, dbc_css, "/assets/style.cc"])
+app = Dash(__name__, external_stylesheets=[dbc.themes.SOLAR, dbc_css, "/assets/style.cc"])
 server = app.server
 
 app.title = "MMA Dashboard"
@@ -281,61 +281,61 @@ app.layout = dbc.Container(
 )
 
 
-@app.callback(
-    Output("graph_map", "figure"), 
-    Input("filter_graph_group", "value"))
-def display_map(group):
-	all_data = []
+# @app.callback(
+#     Output("graph_map", "figure"), 
+#     Input("filter_graph_group", "value"))
+# def display_map(group):
+# 	all_data = []
 
-	for event in all_fight_data:
-	    all_data.append([event[1], event[2]])
+# 	for event in all_fight_data:
+# 	    all_data.append([event[1], event[2]])
 
-	df = pd.DataFrame(all_data, columns=["Date", "Location"])
+# 	df = pd.DataFrame(all_data, columns=["Date", "Location"])
 
-	# extract the country name
-	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
+# 	# extract the country name
+# 	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
 
-	# group the dataframe by country and count the occurrences
-	df = df.groupby('Country').size().reset_index(name='Count')
+# 	# group the dataframe by country and count the occurrences
+# 	df = df.groupby('Country').size().reset_index(name='Count')
 
-	# df = df[df.Country != 'USA']
+# 	# df = df[df.Country != 'USA']
 
 
-	fig = px.choropleth(data_frame=df, locations='Country', locationmode='country names',
-	                    color='Count',
-	                    color_continuous_scale="Reds",
-	                    projection="natural earth")
+# 	fig = px.choropleth(data_frame=df, locations='Country', locationmode='country names',
+# 	                    color='Count',
+# 	                    color_continuous_scale="Reds",
+# 	                    projection="natural earth")
 	
-	fig.update_layout(showlegend=False)
-	return fig
+# 	fig.update_layout(showlegend=False)
+# 	return fig
 
-@app.callback(
-    Output("datatable4", "data"),
-    Output("datatable4", "columns"),
-    Input("filter_graph_group", "value"))
-def update_datatable4(group):
-	all_data = []
+# @app.callback(
+#     Output("datatable4", "data"),
+#     Output("datatable4", "columns"),
+#     Input("filter_graph_group", "value"))
+# def update_datatable4(group):
+# 	all_data = []
 
-	for event in all_fight_data:
-	    all_data.append([event[1], event[2]])
+# 	for event in all_fight_data:
+# 	    all_data.append([event[1], event[2]])
 
-	df = pd.DataFrame(all_data, columns=["Date", "Location"])
+# 	df = pd.DataFrame(all_data, columns=["Date", "Location"])
 
-	# extract the country name
-	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
+# 	# extract the country name
+# 	df['Country'] = df['Location'].str.split(',').str[-1].str.strip()
 
-	# group the dataframe by country and count the occurrences
-	df = df.groupby('Country').size().reset_index(name='Count')
+# 	# group the dataframe by country and count the occurrences
+# 	df = df.groupby('Country').size().reset_index(name='Count')
 
-	# df = df[df.Country != 'USA']
+# 	# df = df[df.Country != 'USA']
 
-	df = df.sort_values('Count', ascending=False).reset_index(drop=True)
-	df.index += 1
-	df = df.reset_index(level=0)
-	df.columns = ["#", "Country", 'Count']
-	columns =  [{"name": i, "id": i,} for i in (df.columns)]
+# 	df = df.sort_values('Count', ascending=False).reset_index(drop=True)
+# 	df.index += 1
+# 	df = df.reset_index(level=0)
+# 	df.columns = ["#", "Country", 'Count']
+# 	columns =  [{"name": i, "id": i,} for i in (df.columns)]
 
-	return df.to_dict('records'), columns
+# 	return df.to_dict('records'), columns
 
 @app.callback(
     Output("datatable3", "data"),
@@ -408,44 +408,16 @@ def update_line_chart(cum, group, names, value, weight):
 	if value == "Control Time":
 		df = df.fillna(value=timedelta())
 		df['Control Time'] = df['Control Time'].apply(lambda x: x.total_seconds())
-
 	if cum == 'Per Fight':
 		if group == "Referees":
 			fig = px.scatter(df, x="Date", y=value, color="Name")
 		else:
 			fig = px.scatter(df, x="Date", y=value, color="Name", hover_data={"Opponent":True})
-		fig.update_traces(marker=dict(size=4, color='black'))
+		fig.update_traces(marker=dict(size=4, color='white'))
 	else:
 		fig = px.line(df, x="Date", y=value, color="Name")
-		fig.update_traces(line_color='black', line_width=0.7)
+		fig.update_traces(line_color='white', line_width=0.7)
 
-	fig.update_layout(
-	    xaxis=dict(
-	        showgrid=False,
-	        showline=True,
-	        linecolor='rgb(102, 102, 102)',
-	        tickcolor='rgb(102, 102, 102)',
-	        showticklabels=True,
-	        tickfont=dict(
-	            size=14,
-	            color='rgb(102, 102, 102)'
-	        ),
-	        zeroline=True,
-	        zerolinecolor='rgb(255,255,255)',
-	        zerolinewidth=2
-	    ),
-	    yaxis=dict(
-	        showgrid=False,
-	        showline=True,
-	        linecolor='rgb(102, 102, 102)',
-	        tickcolor='rgb(102, 102, 102)',
-	        showticklabels=True,
-	        tickfont=dict(
-	            size=14,
-	            color='rgb(102, 102, 102)'
-	        )
-	    )
-	)
 	fig.update_layout(showlegend=False)
 	return fig
 
